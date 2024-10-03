@@ -2,6 +2,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import './SendEmail.scss'; // Directly import the SCSS file
 
 interface SendEmailProps {
   selectedRecords: { name: string; email: string }[];
@@ -9,7 +10,7 @@ interface SendEmailProps {
 }
 
 const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
-const router=useRouter()
+  const router = useRouter();
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,6 @@ const router=useRouter()
 
     // Extract email addresses for BCC
     const bccEmails = selectedRecords.map(record => record.email).join(', ');
-    console.log(bccEmails)
 
     try {
       const response = await fetch('/api/submitform', {
@@ -37,8 +37,8 @@ const router=useRouter()
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: selectedRecords.map(record => record.name).join(', '), // Send names of selected records
-          bcc: bccEmails, 
+          name: selectedRecords.map(record => record.name).join(', '),
+          bcc: bccEmails,
           subject,
           message,
         }),
@@ -47,7 +47,7 @@ const router=useRouter()
       const data = await response.json();
       if (response.ok) {
         setSuccessMessage(data.message);
-        router.push('/dashboard')
+        router.push('/dashboard');
         setSubject('');
         setMessage('');
       } else {
@@ -61,35 +61,42 @@ const router=useRouter()
   };
 
   return (
-    <div>
-      <h1>Send Email</h1>
-      {successMessage && <p className="success-message">{successMessage}</p>}
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+    <div className="containerSendEmail">
+      <h1 className="title">Send Email</h1>
+      {successMessage && <p className="successMessage">{successMessage}</p>}
+      {errorMessage && <p className="errorMessage">{errorMessage}</p>}
 
-      <label>
+      <label className="label">
         Subject:
         <input 
           type="text" 
           value={subject} 
           onChange={e => setSubject(e.target.value)} 
           required 
+          className="input"
         />
       </label>
 
-      <label>
+      <label className="label">
         Message:
         <textarea 
           value={message} 
           onChange={e => setMessage(e.target.value)} 
           required 
+          className="textarea"
         />
       </label>
 
-      <button onClick={handleSendEmail} disabled={loading}>
-        {loading ? 'Sending...' : 'Send Email'}
-      </button>
-      
-      <button onClick={onBack}>Back</button> {/* Button to go back to the previous component */}
+      <button 
+    onClick={handleSendEmail} 
+    disabled={loading} 
+    className="button"
+>
+    {loading ? 'Sending...' : 'Send Email'}
+</button>
+
+<button onClick={onBack} className="backButton">Back</button>
+
     </div>
   );
 };
