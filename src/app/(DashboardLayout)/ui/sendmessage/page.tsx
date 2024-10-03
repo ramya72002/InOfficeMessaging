@@ -1,7 +1,9 @@
+// SendMessage.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
 import './sendmessage.scss';
 import axios from 'axios';
+import SendEmail from '@/app/components/SendEmail';
 
 // Define the interface for a Record
 export interface Record {
@@ -17,14 +19,15 @@ const SendMessage = () => {
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRecords, setSelectedRecords] = useState<Set<number>>(new Set<number>()); // Specify Set<number>()
+  const [selectedRecords, setSelectedRecords] = useState<Set<number>>(new Set<number>());
+  const [showEmailComponent, setShowEmailComponent] = useState(false); // State to toggle the email component
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
         const email = localStorage.getItem('email'); // Get email from local storage
         const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${email}`);
-        
+
         if (response.data) {
           const companyName = response.data.company_name; // Get the company name from the first record
           const companyResponse = await axios.get(`http://127.0.0.1:80/get_forms_company_name?company_name=${companyName}`);
@@ -44,12 +47,12 @@ const SendMessage = () => {
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = event.target.checked;
-    const newSelectedRecords = isChecked ? new Set<number>(records.map((_, index) => index)) : new Set<number>(); // Specify <number>()
+    const newSelectedRecords = isChecked ? new Set<number>(records.map((_, index) => index)) : new Set<number>();
     setSelectedRecords(newSelectedRecords);
   };
 
   const handleSelectRow = (index: number) => {
-    const newSelectedRecords = new Set<number>(selectedRecords); // Specify <number>()
+    const newSelectedRecords = new Set<number>(selectedRecords);
     if (newSelectedRecords.has(index)) {
       newSelectedRecords.delete(index);
     } else {
@@ -58,62 +61,87 @@ const SendMessage = () => {
     setSelectedRecords(newSelectedRecords);
   };
 
+  const handleNext = () => {
+    setShowEmailComponent(true); // Show the email component when next is clicked
+  };
+
+  const handleBack = () => {
+    setShowEmailComponent(false); // Go back to the records view
+    setSelectedRecords(new Set<number>()); // Reset selected records
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
-  // Check if any records are selected
-  const isNextButtonEnabled = selectedRecords.size > 0;
+  // Get selected records for email
+  const emailRecords = records.filter((_, index) => selectedRecords.has(index)).map(record => ({
+    name: record.name,
+    email: record.email,
+  }));
 
   return (
     <div className="sendmessage-container">
       <div className="heading-container">
-        <h1 className="heading">Records for Company</h1>
-        <button 
-          className="next-button" 
-          disabled={!isNextButtonEnabled} 
-          onClick={() => alert('Next button clicked!')} // Replace with your navigation logic
-        >
-          Next
-        </button>
+        {showEmailComponent ? (
+          <SendEmail selectedRecords={emailRecords} onBack={handleBack} /> // Pass selected records to SendEmail component
+        ) : (
+          <>
+            <h1 className="heading">Records for Company</h1>
+            <button
+              className="next-button"
+              onClick={handleNext}
+              disabled={selectedRecords.size === 0} // Disable if no records are selected
+            >
+              Next
+            </button>
+          </>
+        )}
       </div>
-      <table className="records-table">
-        <thead>
-          <tr>
-            <th>
-              <input 
-                type="checkbox" 
-                checked={selectedRecords.size === records.length} 
-                onChange={handleSelectAll} 
-              />
-            </th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Company</th>
-          </tr>
-        </thead>
-        <tbody>
-          {records.length > 0 ? (
-            records.map((record, index) => (
-              <tr key={index} onClick={() => handleSelectRow(index)} className={selectedRecords.has(index) ? 'selected' : ''}>
-                <td>
-                  <input 
-                    type="checkbox" 
-                    checked={selectedRecords.has(index)} 
-                    onChange={() => handleSelectRow(index)} 
-                  />
-                </td>
-                <td>{record.name}</td>
-                <td>{record.email}</td>
-                <td>{record.company_name}</td>
-              </tr>
-            ))
-          ) : (
+
+      {!showEmailComponent && (
+        <table className="records-table">
+          <thead>
             <tr>
-              <td colSpan={4}>No records found for this company.</td>
+              <th>
+                <input
+                  type="checkbox"
+                  checked={selectedRecords.size === records.length}
+                  onChange={handleSelectAll}
+                />
+              </th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Company</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {records.length > 0 ? (
+              records.map((record, index) => (
+                <tr
+                  key={index}
+                  onClick={() => handleSelectRow(index)}
+                  className={selectedRecords.has(index) ? 'selected' : ''}
+                >
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedRecords.has(index)}
+                      onChange={() => handleSelectRow(index)}
+                    />
+                  </td>
+                  <td>{record.name}</td>
+                  <td>{record.email}</td>
+                  <td>{record.company_name}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4}>No records found for this company.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
