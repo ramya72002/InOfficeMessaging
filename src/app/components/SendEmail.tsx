@@ -1,18 +1,18 @@
 // components/SendEmail.tsx
-'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import './SendEmail.scss'; // Directly import the SCSS file
+import './SendEmail.scss';
 
 interface SendEmailProps {
   selectedRecords: { name: string; email: string }[];
-  onBack: () => void; // Callback to go back to the previous component
+  onBack: () => void;
 }
 
 const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
   const router = useRouter();
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [image, setImage] = useState<File | null>(null); // State for the image
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -27,35 +27,35 @@ const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
     setSuccessMessage('');
     setErrorMessage('');
 
-    // Extract email addresses for BCC
     const bccEmails = selectedRecords.map(record => record.email).join(', ');
+
+    const formData = new FormData(); // Create FormData object
+    formData.append('name', selectedRecords.map(record => record.name).join(', '));
+    formData.append('bcc', bccEmails);
+    formData.append('subject', subject);
+    formData.append('message', message);
+    if (image) {
+      formData.append('image', image); // Append the image file
+    }
 
     try {
       const response = await fetch('/api/submitform', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: selectedRecords.map(record => record.name).join(', '),
-          bcc: bccEmails,
-          subject,
-          message,
-        }),
+        body: formData, // Make sure you use FormData here
       });
-
-      const data = await response.json();
-      if (response.ok) {
-        setSuccessMessage(data.message);
-        router.push('/dashboard');
-        setSubject('');
-        setMessage('');
-      } else {
-        throw new Error(data.error);
+    
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error response from server:', errorData); // Log server error response
+        throw new Error(errorData.error || 'Error sending email');
       }
+    
+      const data = await response.json();
+      setSuccessMessage(data.message);
     } catch (error) {
       setErrorMessage('Error sending email: ' + error);
-    } finally {
+    }
+     finally {
       setLoading(false);
     }
   };
@@ -87,16 +87,25 @@ const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
         />
       </label>
 
+      <label className="label">
+        Upload Image:
+        <input 
+          type="file" 
+          accept="image/*" 
+          onChange={e => setImage(e.target.files![0])} 
+          className="input" 
+        />
+      </label>
+
       <button 
-    onClick={handleSendEmail} 
-    disabled={loading} 
-    className="button"
->
-    {loading ? 'Sending...' : 'Send Email'}
-</button>
+        onClick={handleSendEmail} 
+        disabled={loading} 
+        className="button"
+      >
+        {loading ? 'Sending...' : 'Send Email'}
+      </button>
 
-<button onClick={onBack} className="backButton">Back</button>
-
+      <button onClick={onBack} className="backButton">Back</button>
     </div>
   );
 };
