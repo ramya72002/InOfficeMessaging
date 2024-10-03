@@ -37,10 +37,10 @@ const SidebarContent: MenuItem[] = [
     heading: "Utilities",
     children: [
       {
-        name: "Post Records",
+        name: "Send Messages",
         icon: "solar:text-circle-outline",
         id: uniqueId(),
-        url: "/ui/postrecords",
+        url: "/ui/sendmessage",
       },
       // {
       //   name: "menu1",

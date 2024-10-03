@@ -30,7 +30,7 @@ const AuthLogin = () => {
         router.push("/dashboard"); // Redirect to the dashboard
       }
     } catch (error) {
-      setErrorMessage("Invalid email. Please try again.");
+      // setErrorMessage("Invalid email. Please try again.");
     }
     setIsLoading(false);
   };

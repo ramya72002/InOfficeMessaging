@@ -2,10 +2,13 @@
 import { Button, Label, TextInput } from "flowbite-react";
 import React, { useState } from "react";
 import axios from "axios";
+import router, { useRouter } from "next/navigation";
 
 const AuthRegister = () => {
+  const router=useRouter()
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [companyName, setCompanyName] = useState("");  // Add companyName state
   const [otp, setOtp] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,13 +17,17 @@ const AuthRegister = () => {
   const handleSignup = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.post("http://127.0.0.1:80/signup", { name, email });
+      const response = await axios.post("http://127.0.0.1:80/signup", { 
+        name, 
+        email, 
+        company_name: companyName  // Pass company name in signup request
+      });
       if (response.data.success) {
         setIsOtpSent(true);
         setMessage("OTP sent to your email."); 
       }
     } catch (error) {
-      setMessage("Error sending OTP.");
+      setMessage("Email Already Registered");
     }
     setIsLoading(false);
   };
@@ -32,6 +39,7 @@ const AuthRegister = () => {
       if (response.data.success) {
         setMessage("OTP verified successfully!");
         localStorage.setItem("email", email); // Store email in local storage
+        router.push('/auth/login')
       } else {
         setMessage(response.data.message);
       }
@@ -74,6 +82,21 @@ const AuthRegister = () => {
           />
         </div>
 
+        <div className="mb-4">
+          <div className="mb-2 block">
+            <Label htmlFor="companyName" value="Company Name" />
+          </div>
+          <TextInput
+            id="companyName"
+            type="text"
+            value={companyName}  // Bind company name state
+            onChange={(e) => setCompanyName(e.target.value)}
+            sizing="md"
+            className="form-control"
+            disabled={isOtpSent} // Disable if OTP is sent
+          />
+        </div>
+
         {isOtpSent ? (
           <div className="mb-4">
             <div className="mb-2 block">
@@ -107,7 +130,7 @@ const AuthRegister = () => {
             onClick={handleVerifyOtp}
             disabled={isLoading}
           >
-            {isLoading ? "Verifying OTP..." : "Otp verified Sucessfully Please Sign in"}
+            {isLoading ? "Verifying OTP..." : "Sign Up"}
           </Button>
         )}
 
