@@ -1,6 +1,7 @@
 // components/SendEmail.tsx
 'use client';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface SendEmailProps {
   selectedRecords: { name: string; email: string }[];
@@ -8,6 +9,7 @@ interface SendEmailProps {
 }
 
 const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
+const router=useRouter()
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
         },
         body: JSON.stringify({
           name: selectedRecords.map(record => record.name).join(', '), // Send names of selected records
-          bcc: bccEmails, // Send emails for BCC
+          bcc: bccEmails, 
           subject,
           message,
         }),
@@ -45,6 +47,7 @@ const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
       const data = await response.json();
       if (response.ok) {
         setSuccessMessage(data.message);
+        router.push('/dashboard')
         setSubject('');
         setMessage('');
       } else {

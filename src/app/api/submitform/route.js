@@ -22,7 +22,7 @@ export async function POST(req) {
     from: process.env.EMAIL_USER, // Use your sender email here
     bcc: bcc, // Send emails for BCC
     subject: subject,
-    text: `Name: ${name}\nMessage: ${message}`,
+    text: `${message}`,
   };
 
   try {
