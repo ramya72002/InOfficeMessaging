@@ -29,7 +29,7 @@ const page = () => {
                   <TextInput
                     id="email1"
                     type="email"
-                    placeholder="name@NVision(HealthLocker).com"
+                    placeholder="name@NVision(InOfficeMessaging).com"
                     required
                     className="form-control"
                   />

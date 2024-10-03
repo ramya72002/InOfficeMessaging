@@ -20,7 +20,7 @@ const BoxedLogin = () => {
               <p className="text-sm text-center text-dark my-3">SignIn To NVision In Office Messaging</p> 
               <AuthLogin />
               <div className="flex gap-2 text-base text-ld font-medium mt-6 items-center justify-center">
-                <p>New to NVision(HealthLocker)?</p>
+                <p>New to NVision(InOfficeMessaging)?</p>
                 <Link
                   href={"/auth/register"}
                   className="text-primary text-sm font-medium"
