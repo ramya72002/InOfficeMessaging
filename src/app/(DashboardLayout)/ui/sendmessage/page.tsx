@@ -61,9 +61,21 @@ const SendMessage = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+  // Check if any records are selected
+  const isNextButtonEnabled = selectedRecords.size > 0;
+
   return (
     <div className="sendmessage-container">
-      <h1 className="heading">Records for Company</h1>
+      <div className="heading-container">
+        <h1 className="heading">Records for Company</h1>
+        <button 
+          className="next-button" 
+          disabled={!isNextButtonEnabled} 
+          onClick={() => alert('Next button clicked!')} // Replace with your navigation logic
+        >
+          Next
+        </button>
+      </div>
       <table className="records-table">
         <thead>
           <tr>
@@ -77,7 +89,7 @@ const SendMessage = () => {
             <th>Name</th>
             <th>Email</th>
             <th>Company</th>
-           </tr>
+          </tr>
         </thead>
         <tbody>
           {records.length > 0 ? (
@@ -93,11 +105,11 @@ const SendMessage = () => {
                 <td>{record.name}</td>
                 <td>{record.email}</td>
                 <td>{record.company_name}</td>
-               </tr>
+              </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={5}>No records found for this company.</td>
+              <td colSpan={4}>No records found for this company.</td>
             </tr>
           )}
         </tbody>
