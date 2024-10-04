@@ -92,7 +92,7 @@ const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
       </label>
 
       <label className="label">
-        Upload Image:
+        Upload Image (Optional):
         <input
           type="file"
           accept="image/*"
@@ -114,7 +114,7 @@ const SendEmail: React.FC<SendEmailProps> = ({ selectedRecords, onBack }) => {
             {successMessage && <p className="successMessage">{successMessage}</p>}
             {errorMessage && <p className="errorMessage">{errorMessage}</p>}
             <button onClick={handleClosePopup} className="popupButton">
-              Go Back
+              OK
             </button>
           </div>
         </div>
