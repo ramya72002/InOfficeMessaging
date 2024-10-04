@@ -10,6 +10,7 @@ export interface Record {
   name: string;
   email: string;
   company_name: string;
+  phone:number;
   signup_date: {
     $date: string; // This represents the date string returned from MongoDB
   };
@@ -111,6 +112,7 @@ const SendMessage = () => {
               </th>
               <th>Name</th>
               <th>Email</th>
+              <th>Mobile Number</th>
               <th>Company</th>
             </tr>
           </thead>
@@ -131,6 +133,7 @@ const SendMessage = () => {
                   </td>
                   <td>{record.name}</td>
                   <td>{record.email}</td>
+                  <td>{record.phone}</td>
                   <td>{record.company_name}</td>
                 </tr>
               ))
