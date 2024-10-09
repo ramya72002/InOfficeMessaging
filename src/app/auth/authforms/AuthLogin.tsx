@@ -24,7 +24,7 @@ const AuthLogin = () => {
     if (e) e.preventDefault(); // Prevent default form submission if called from the form
     setIsLoading(true);
     try {
-      const response = await axios.post("http://127.0.0.1:80/signin", { email });
+      const response = await axios.post("https://in-office-messaging-backend.vercel.app/signin", { email });
       if (response.status === 200) {
         localStorage.setItem("email", email);
         router.push("/dashboard"); // Redirect to the dashboard
