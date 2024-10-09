@@ -4,13 +4,14 @@ import React, { useEffect, useState } from 'react';
 import './sendsms.scss';
 import axios from 'axios';
 import SendEmail from '@/app/components/SendEmail';
+import SendSMS from '@/app/components/SendSms';
 
 // Define the interface for a Record
 export interface Record {
   name: string;
   email: string;
   company_name: string;
-  phone:number;
+  phone:string;
   provider:string;
   signup_date: {
     $date: string; // This represents the date string returned from MongoDB
@@ -76,23 +77,23 @@ const SendMessage = () => {
   if (error) return <div>{error}</div>;
 
   // Get selected records for email
-  const emailRecords = records.filter((_, index) => selectedRecords.has(index)).map(record => ({
-    name: record.name,
-    email: record.email,
+  const phoneRecords = records.filter((_, index) => selectedRecords.has(index)).map(record => ({
+    phone: record.phone,
+    provider: record.provider,
   }));
 
   return (
     <div className="sendmessage-container">
       <div className="heading-container">
         {showEmailComponent ? (
-          <SendEmail selectedRecords={emailRecords} onBack={handleBack} /> // Pass selected records to SendEmail component
+          <SendSMS selectedRecords={phoneRecords} onBack={handleBack} /> // Pass selected records to SendEmail component
         ) : (
           <>
             <h1 className="heading">Select Records To Send SMS</h1>
             <button
               className="next-button"
               onClick={handleNext}
-              disabled={selectedRecords.size === 0} // Disable if no records are selected
+              disabled={selectedRecords.size === 0}
             >
               Next
             </button>

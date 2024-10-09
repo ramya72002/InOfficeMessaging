@@ -92,7 +92,7 @@ const SendMessage = () => {
             <button
               className="next-button"
               onClick={handleNext}
-              disabled={selectedRecords.size === 0} // Disable if no records are selected
+              disabled={selectedRecords.size === 0}
             >
               Next
             </button>
