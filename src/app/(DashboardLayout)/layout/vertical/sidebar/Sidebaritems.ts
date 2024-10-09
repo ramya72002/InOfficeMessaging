@@ -37,11 +37,17 @@ const SidebarContent: MenuItem[] = [
     heading: "Utilities",
     children: [
       {
-        name: "Send Messages",
+        name: "Send Messages (Email)",
         icon: "solar:text-circle-outline",
         id: uniqueId(),
         url: "/ui/sendmessage",
       },
+      {
+        name: "Send Messages (SMS)",
+        icon: "solar:text-circle-outline",
+        id: uniqueId(),
+        url: "/ui/sendsms",
+      }
       // {
       //   name: "menu1",
       //   icon: "solar:bedside-table-3-linear",

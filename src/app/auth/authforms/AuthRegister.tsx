@@ -1,45 +1,81 @@
 'use client'
-import { Button, Label, TextInput } from "flowbite-react";
+import { Button, Label, TextInput, Select } from "flowbite-react";
 import React, { useState } from "react";
 import axios from "axios";
-import router, { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+
+const PROVIDERS = {
+  "AT&T": { "sms": "txt.att.net", "mms": "mms.att.net", "mms_support": true },
+  "Boost Mobile": { "sms": "sms.myboostmobile.com", "mms": "myboostmobile.com", "mms_support": true },
+  "C-Spire": { "sms": "cspire1.com", "mms_support": false },
+  "Cricket Wireless": { "sms": "sms.cricketwireless.net", "mms": "mms.cricketwireless.net", "mms_support": true },
+  "Consumer Cellular": { "sms": "mailmymobile.net", "mms_support": false },
+  "Google Project Fi": { "sms": "msg.fi.google.com", "mms_support": true },
+  "Metro PCS": { "sms": "mymetropcs.com", "mms_support": true },
+  "Mint Mobile": { "sms": "mailmymobile.net", "mms_support": false },
+  "Page Plus": { "sms": "vtext.com", "mms": "mypixmessages.com", "mms_support": true },
+  "Republic Wireless": { "sms": "text.republicwireless.com", "mms_support": false },
+  "Sprint": { "sms": "messaging.sprintpcs.com", "mms": "pm.sprint.com", "mms_support": true },
+  "Straight Talk": { "sms": "vtext.com", "mms": "mypixmessages.com", "mms_support": true },
+  "T-Mobile": { "sms": "tmomail.net", "mms_support": true },
+  "Ting": { "sms": "message.ting.com", "mms_support": false },
+  "Tracfone": { "sms": "", "mms": "mmst5.tracfone.com", "mms_support": true },
+  "U.S. Cellular": { "sms": "email.uscc.net", "mms": "mms.uscc.net", "mms_support": true },
+  "Verizon": { "sms": "vtext.com", "mms": "vzwpix.com", "mms_support": true },
+  "Virgin Mobile": { "sms": "vmobl.com", "mms": "vmpix.com", "mms_support": true },
+  "Xfinity Mobile": { "sms": "vtext.com", "mms": "mypixmessages.com", "mms_support": true },
+};
 
 const AuthRegister = () => {
-  const router=useRouter()
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [companyName, setCompanyName] = useState("");  // Add companyName state
+  const [companyName, setCompanyName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [provider, setProvider] = useState("");
   const [otp, setOtp] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   const handleSignup = async () => {
+    if (!name || !email || !companyName || !phone || !provider) {
+      setMessage("All fields are required!");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const response = await axios.post("https://in-office-messaging-backend.vercel.app/signup", { 
-        name, 
-        email, 
-        company_name: companyName  // Pass company name in signup request
+      const response = await axios.post("http://127.0.0.1:80/signup", {
+        name,
+        email,
+        company_name: companyName,
+        phone,
+        provider,
       });
       if (response.data.success) {
         setIsOtpSent(true);
-        setMessage("OTP sent to your email."); 
+        setMessage("OTP sent to your email.");
       }
     } catch (error) {
       setMessage("Email Already Registered");
     }
     setIsLoading(false);
   };
-  
+
   const handleVerifyOtp = async () => {
+    if (!otp) {
+      setMessage("OTP is required!");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const response = await axios.post("https://in-office-messaging-backend.vercel.app/verify-otp", { email, otp });
+      const response = await axios.post("http://127.0.0.1:80/verify-otp", { email, otp });
       if (response.data.success) {
         setMessage("OTP verified successfully!");
-        localStorage.setItem("email", email); // Store email in local storage
-        router.push('/auth/login')
+        localStorage.setItem("email", email);
+        router.push("/auth/login");
       } else {
         setMessage(response.data.message);
       }
@@ -63,7 +99,7 @@ const AuthRegister = () => {
             onChange={(e) => setName(e.target.value)}
             sizing="md"
             className="form-control"
-            disabled={isOtpSent} // Disable if OTP is sent
+            disabled={isOtpSent}
           />
         </div>
 
@@ -78,7 +114,7 @@ const AuthRegister = () => {
             onChange={(e) => setEmail(e.target.value)}
             sizing="md"
             className="form-control"
-            disabled={isOtpSent} // Disable if OTP is sent
+            disabled={isOtpSent}
           />
         </div>
 
@@ -89,12 +125,46 @@ const AuthRegister = () => {
           <TextInput
             id="companyName"
             type="text"
-            value={companyName}  // Bind company name state
+            value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
             sizing="md"
             className="form-control"
-            disabled={isOtpSent} // Disable if OTP is sent
+            disabled={isOtpSent}
           />
+        </div>
+
+        <div className="mb-4">
+          <div className="mb-2 block">
+            <Label htmlFor="phone" value="Phone Number" />
+          </div>
+          <TextInput
+            id="phone"
+            type="text"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            sizing="md"
+            className="form-control"
+            disabled={isOtpSent}
+          />
+        </div>
+
+        <div className="mb-4">
+          <div className="mb-2 block">
+            <Label htmlFor="provider" value="Provider" />
+          </div>
+          <Select
+            id="provider"
+            value={provider}
+            onChange={(e) => setProvider(e.target.value)}
+            disabled={isOtpSent}
+          >
+            <option value="">Select a Provider</option>
+            {Object.keys(PROVIDERS).map((prov) => (
+              <option key={prov} value={prov}>
+                {prov}
+              </option>
+            ))}
+          </Select>
         </div>
 
         {isOtpSent ? (

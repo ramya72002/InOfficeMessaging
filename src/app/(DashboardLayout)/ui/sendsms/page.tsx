@@ -1,7 +1,7 @@
 // SendMessage.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
-import './sendmessage.scss';
+import './sendsms.scss';
 import axios from 'axios';
 import SendEmail from '@/app/components/SendEmail';
 
@@ -88,7 +88,7 @@ const SendMessage = () => {
           <SendEmail selectedRecords={emailRecords} onBack={handleBack} /> // Pass selected records to SendEmail component
         ) : (
           <>
-            <h1 className="heading">Select Records To Send Email</h1>
+            <h1 className="heading">Select Records To Send SMS</h1>
             <button
               className="next-button"
               onClick={handleNext}
