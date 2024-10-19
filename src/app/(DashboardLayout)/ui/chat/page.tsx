@@ -37,11 +37,11 @@ const Chat = () => {
     const fetchRecords = async () => {
       try {
         const email = localStorage.getItem('email');
-        const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${email}`);
+        const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
 
         if (response.data) {
           const companyName = response.data.company_name;
-          const companyResponse = await axios.get(`http://127.0.0.1:80/get_forms_company_name?company_name=${companyName}`);
+          const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${companyName}`);
           setRecords(companyResponse.data);
         } else {
           setError("No records found for this user.");
@@ -60,7 +60,7 @@ const Chat = () => {
   const fetchMessages = async (contactEmail: string) => {
     try {
       const userEmail = localStorage.getItem('email');
-      const response = await axios.get(`http://127.0.0.1:80/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
+      const response = await axios.get(`https://in-office-messaging-backend.vercel.app/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
       setMessages(response.data.conversation || []);
     } catch (err) {
       setError("Error fetching messages.");
@@ -83,7 +83,7 @@ const Chat = () => {
       };
 
       try {
-        const response = await axios.post('http://127.0.0.1:80/send_message', newMessageObj);
+        const response = await axios.post('https://in-office-messaging-backend.vercel.app/send_message', newMessageObj);
         if (response.status === 200) {
           setMessages((prevMessages) => [...prevMessages, newMessageObj]);
           setNewMessage('');
