@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './chat.scss';
 
@@ -28,6 +28,9 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Reference for scrolling to the bottom of the chat body
+  const chatBodyRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch contacts
   useEffect(() => {
@@ -108,6 +111,13 @@ const Chat = () => {
     }
   }, [selectedContact]);
 
+  // Scroll to the bottom of the chat body whenever messages change
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -128,7 +138,7 @@ const Chat = () => {
           >
             <div
               className="contact-avatar"
-              style={{ backgroundColor: generateColor(record.email) }} // Use static color
+              style={{ backgroundColor: generateColor(record.email) }}
             >
               {record.name.charAt(0).toUpperCase()}
             </div>
@@ -147,7 +157,7 @@ const Chat = () => {
               </div>
             </div>
 
-            <div className="chat-body">
+            <div className="chat-body" ref={chatBodyRef}>
               {Array.isArray(messages) && messages.length > 0 ? (
                 messages.map((message, index) => (
                   <div
