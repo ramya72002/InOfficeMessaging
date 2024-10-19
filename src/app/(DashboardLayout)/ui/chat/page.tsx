@@ -112,7 +112,7 @@ const Chat = () => {
       // Set up interval to fetch messages every second
       const intervalId = setInterval(() => {
         fetchMessages(selectedContact.email);
-      }, 100);
+      }, 1000);
 
       // Clear interval on component unmount or when selectedContact changes
       return () => clearInterval(intervalId);
