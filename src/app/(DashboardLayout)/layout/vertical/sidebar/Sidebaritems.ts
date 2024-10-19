@@ -47,13 +47,13 @@ const SidebarContent: MenuItem[] = [
         icon: "solar:text-circle-outline",
         id: uniqueId(),
         url: "/ui/sendsms",
+      },
+      {
+        name: "Chat",
+        icon: "solar:bedside-table-3-linear",
+        id: uniqueId(),
+        url: "/ui/chat",
       }
-      // {
-      //   name: "menu1",
-      //   icon: "solar:bedside-table-3-linear",
-      //   id: uniqueId(),
-      //   url: "/ui/table",
-      // },
       // {
       //   name: "menu2",
       //   icon: "solar:password-minimalistic-outline",
