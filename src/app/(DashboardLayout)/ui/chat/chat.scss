@@ -1,6 +1,6 @@
 .chat-container {
   display: flex;
-  height: 100vh;
+  height: 80vh;
   font-family: 'Arial', sans-serif;
 
   .contacts-sidebar {
@@ -17,6 +17,8 @@
     }
 
     .contact-item {
+      display: flex;
+      align-items: center;
       padding: 10px;
       margin-bottom: 10px;
       cursor: pointer;
@@ -74,6 +76,30 @@
 
       .message {
         margin-bottom: 10px;
+        display: flex;
+        flex-direction: column; // Stack message and timestamp
+        justify-content: flex-start;
+        align-items: flex-start;
+
+        &.message-sent {
+          align-items: flex-end; // Align to the right for sent messages
+
+          .message-content {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+          }
+        }
+
+        &.message-received {
+          .message-content {
+            background-color: #e9e9eb;
+            color: black;
+            padding: 10px;
+            border-radius: 5px;
+          }
+        }
 
         .message-sender {
           font-weight: bold;
@@ -81,13 +107,18 @@
         }
 
         .message-content {
-          margin-right: 10px;
+          margin-bottom: 2px; // Space between message and timestamp
         }
 
         .message-time {
           font-size: 12px;
           color: #888;
+          margin-left: 5px; // Slight left margin for better spacing
         }
+      }
+
+      .no-messages {
+        color: #888;
       }
     }
 
@@ -100,28 +131,27 @@
       .send-message-input {
         flex: 1;
         padding: 10px;
-        font-size: 16px;
-        border: 1px solid #d0d0d0;
-        border-radius: 4px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
         margin-right: 10px;
       }
 
       .send-message-button {
         background-color: #007bff;
-        color: #ffffff;
-        padding: 10px 20px;
-        font-size: 16px;
+        color: white;
+        padding: 10px 15px;
         border: none;
-        border-radius: 4px;
+        border-radius: 5px;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: background-color 0.2s;
 
-        &:disabled {
-          background-color: #c0c0c0;
+        &:hover {
+          background-color: #0056b3;
         }
 
-        &:hover:enabled {
-          background-color: #0056b3;
+        &:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
         }
       }
     }
