@@ -96,6 +96,14 @@ const Chat = () => {
     }
   };
 
+  // Handle keydown event for sending messages
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSendMessage();
+      event.preventDefault(); // Prevent form submission if in a form context
+    }
+  };
+
   // Fetch messages when a contact is selected
   useEffect(() => {
     if (selectedContact) {
@@ -104,7 +112,7 @@ const Chat = () => {
       // Set up interval to fetch messages every second
       const intervalId = setInterval(() => {
         fetchMessages(selectedContact.email);
-      }, 1000);
+      }, 100);
 
       // Clear interval on component unmount or when selectedContact changes
       return () => clearInterval(intervalId);
@@ -180,6 +188,7 @@ const Chat = () => {
                 className="send-message-input"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={handleKeyDown} // Add the keydown event handler here
                 placeholder="Type a message..."
               />
               <button
