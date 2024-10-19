@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './chat.scss';
@@ -13,6 +13,13 @@ export interface Record {
     $date: string;
   };
 }
+
+// Define a function to generate a color based on a hash of the email
+const generateColor = (email: string) => {
+  const colors = ['#FF5733', '#33FF57', '#3357FF', '#F1C40F', '#8E44AD', '#3498DB'];
+  const hash = email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return colors[hash % colors.length]; // Select a color based on the hash
+};
 
 const Chat = () => {
   const [records, setRecords] = useState<Record[]>([]);
@@ -56,9 +63,9 @@ const Chat = () => {
       setError("Error fetching messages.");
     }
   };
-  
+
   const getCurrentTimestamp = () => {
-    return (new Date()).toLocaleDateString('en-CA') + ' ' + (new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // e.g., "2024-10-19 02:22 PM"
+    return (new Date()).toLocaleDateString('en-CA') + ' ' + (new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   // Handle sending a new message
@@ -71,7 +78,7 @@ const Chat = () => {
         message: newMessage,
         timestamp: getCurrentTimestamp(),
       };
-  
+
       try {
         const response = await axios.post('http://127.0.0.1:80/send_message', newMessageObj);
         if (response.status === 200) {
@@ -85,7 +92,6 @@ const Chat = () => {
       }
     }
   };
-  
 
   // Fetch messages when a contact is selected
   useEffect(() => {
@@ -112,6 +118,12 @@ const Chat = () => {
             className={`contact-item ${selectedContact?.email === record.email ? 'contact-selected' : ''}`}
             onClick={() => setSelectedContact(record)}
           >
+            <div
+              className="contact-avatar"
+              style={{ backgroundColor: generateColor(record.email) }} // Use static color
+            >
+              {record.name.charAt(0).toUpperCase()}
+            </div>
             <div className="contact-name">{record.name}</div>
           </div>
         ))}
@@ -136,7 +148,7 @@ const Chat = () => {
                   >
                     <span className="message-sender">{message.sender === localStorage.getItem('email') ? 'You' : message.sender}:</span>
                     <span className="message-content">{message.message}</span>
-                    <span className="message-time">{message.timestamp}</span> {/* Now below the message */}
+                    <span className="message-time">{message.timestamp}</span>
                   </div>
                 ))
               ) : (
