@@ -1,0 +1,119 @@
+.chat-container {
+  display: flex;
+  height: 80vh; /* Full viewport height */
+  font-family: 'Arial', sans-serif; /* Use a clean font */
+}
+
+.contacts-sidebar {
+  width: 300px; /* Fixed width for sidebar */
+  background-color: #f7f9fc; /* Light background for the sidebar */
+  border-right: 1px solid #e0e0e0; /* Border to separate sidebar from chat window */
+  overflow-y: auto; /* Allow scrolling if groups exceed visible area */
+  padding: 20px; /* Padding for better spacing */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+
+  h2 {
+    margin-bottom: 20px; /* Margin for the title */
+    color: #007bff; /* Title color */
+    font-size: 1.5em; /* Larger font size for title */
+  }
+
+  h3 {
+    margin: 10px 0; /* Margin for each group name */
+    cursor: pointer; /* Change cursor to pointer */
+    transition: background-color 0.3s; /* Smooth background transition */
+    padding: 10px; /* Padding for clickable area */
+    border-radius: 5px; /* Rounded corners */
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center align items */
+
+    /* Profile color indicators */
+    .profile-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%; /* Circular profile indicator */
+      margin-right: 10px; /* Space between indicator and group name */
+      background-color: #007bff; /* Default color, can be dynamic */
+    }
+
+    &:hover {
+      background-color: #e1f5fe; /* Light blue on hover */
+    }
+  }
+}
+
+.chat-window {
+  flex: 1; /* Take the remaining width */
+  background-color: #ffffff; /* White background for chat */
+  padding: 20px; /* Padding for better spacing */
+  overflow-y: auto; /* Allow scrolling for messages */
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Shadow to separate from sidebar */
+  display: flex;
+  flex-direction: column; /* Stack messages and input vertically */
+
+  .messages {
+    flex: 1; /* Allow messages to take available space */
+    margin-bottom: 20px; /* Margin below messages */
+    overflow-y: auto; /* Allow scrolling if messages exceed visible area */
+
+    div {
+      margin-bottom: 15px; /* Margin between messages */
+      padding: 10px; /* Padding for message bubbles */
+      border-radius: 8px; /* Rounded corners for message bubbles */
+      background-color: #f1f1f1; /* Light background for messages */
+      max-width: 70%; /* Limit width of message bubbles */
+      position: relative; /* Relative positioning for the timestamp */
+
+      strong {
+        color: #007bff; /* Color for sender name */
+        font-weight: bold; /* Bold font for sender */
+      }
+
+      em {
+        color: #888; /* Color for timestamp */
+        font-size: 0.9em; /* Slightly smaller font for timestamp */
+        position: absolute; /* Position timestamp */
+        bottom: 5px; /* Position it at the bottom of the message */
+        right: 10px; /* Position it towards the right */
+      }
+    }
+  }
+}
+
+.message-input {
+  display: flex;
+  align-items: center; /* Align items in the center */
+  margin-top: 20px; /* Space above the input area */
+  border-top: 1px solid #e0e0e0; /* Border above input area */
+  padding-top: 10px; /* Padding for spacing */
+  
+  input {
+    flex: 1; /* Take remaining space */
+    padding: 12px; /* More padding for a larger input area */
+    border: 1px solid #ccc;
+    border-radius: 20px; /* Rounder input corners */
+    margin-right: 10px; /* Space between input and button */
+    font-size: 1em; /* Increase font size for better readability */
+    outline: none; /* Remove outline */
+    transition: border-color 0.3s; /* Transition for focus effect */
+
+    &:focus {
+      border-color: #007bff; /* Highlight border on focus */
+    }
+  }
+
+  button {
+    padding: 12px 20px; /* Increased button size */
+    background-color: #007bff; /* Button color */
+    color: white;
+    border: none;
+    border-radius: 20px; /* Rounder button corners */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Transition for hover effect */
+    font-size: 1em; /* Increase font size for better readability */
+
+    &:hover {
+      background-color: #0056b3; /* Darker shade on hover */
+    }
+  }
+}

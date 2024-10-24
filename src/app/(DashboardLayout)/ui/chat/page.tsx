@@ -14,11 +14,10 @@ export interface Record {
   };
 }
 
-// Define a function to generate a color based on a hash of the email
 const generateColor = (email: string) => {
   const colors = ['#FF5733', '#33FF57', '#3357FF', '#F1C40F', '#8E44AD', '#3498DB'];
   const hash = email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return colors[hash % colors.length]; // Select a color based on the hash
+  return colors[hash % colors.length];
 };
 
 const Chat = () => {
@@ -28,11 +27,12 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Reference for scrolling to the bottom of the chat body
+  const [showGroupModal, setShowGroupModal] = useState<boolean>(false);
+  const [groupName, setGroupName] = useState<string>('');
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
 
-  // Fetch contacts
   useEffect(() => {
     const fetchRecords = async () => {
       try {
@@ -56,7 +56,6 @@ const Chat = () => {
     fetchRecords();
   }, []);
 
-  // Fetch messages for the selected contact
   const fetchMessages = async (contactEmail: string) => {
     try {
       const userEmail = localStorage.getItem('email');
@@ -68,10 +67,9 @@ const Chat = () => {
   };
 
   const getCurrentTimestamp = () => {
-    return (new Date()).toLocaleDateString('en-CA') + ' ' + (new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date().toLocaleDateString('en-CA') + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Handle sending a new message
   const handleSendMessage = async () => {
     if (newMessage.trim() && selectedContact) {
       const userEmail = localStorage.getItem('email');
@@ -96,35 +94,56 @@ const Chat = () => {
     }
   };
 
-  // Handle keydown event for sending messages
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleSendMessage();
-      event.preventDefault(); // Prevent form submission if in a form context
+      event.preventDefault();
     }
   };
 
-  // Fetch messages when a contact is selected
   useEffect(() => {
     if (selectedContact) {
       fetchMessages(selectedContact.email);
-      
-      // Set up interval to fetch messages every second
+
       const intervalId = setInterval(() => {
         fetchMessages(selectedContact.email);
       }, 1000);
 
-      // Clear interval on component unmount or when selectedContact changes
       return () => clearInterval(intervalId);
     }
   }, [selectedContact]);
 
-  // Scroll to the bottom of the chat body whenever messages change
   useEffect(() => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleCreateGroup = async () => {
+    try {
+      const userEmail = localStorage.getItem('email');
+      const groupData = {
+        group_name: groupName,
+        createdBy: userEmail,
+        members: selectedMembers,
+      };
+      const response = await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
+      if (response.status === 200) {
+        setShowGroupModal(false);
+        setGroupName('');
+        setSelectedMembers([]);
+        alert('Group created successfully!');
+      } else {
+        setError('Failed to create group. Please try again.');
+      }
+    } catch (err) {
+      setError('Error creating group. Please check the console for details.');
+    }
+  };
+
+  const handleToggleGroupModal = () => {
+    setShowGroupModal(!showGroupModal);
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -137,7 +156,10 @@ const Chat = () => {
   return (
     <div className="chat-container">
       <div className="contacts-sidebar">
-        <div className="contacts-header">Contacts</div>
+        <div className="contacts-header">
+          Contacts
+          <button className="create-group-button" onClick={handleToggleGroupModal}>+</button>
+        </div>
         {records.map((record) => (
           <div
             key={record.email}
@@ -188,7 +210,7 @@ const Chat = () => {
                 className="send-message-input"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={handleKeyDown} // Add the keydown event handler here
+                onKeyDown={handleKeyDown}
                 placeholder="Type a message..."
               />
               <button
@@ -204,6 +226,40 @@ const Chat = () => {
           <div className="chat-header">Select a contact to start chatting</div>
         )}
       </div>
+
+      {showGroupModal && (
+  <div className="modal">
+    <div className="modal-content">
+      <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
+      <h2>Create New Group</h2>
+      <input 
+        type="text" 
+        value={groupName} 
+        onChange={(e) => setGroupName(e.target.value)} 
+        placeholder="Group Name"
+      />
+      <h3>Select Members:</h3>
+      {records.map((record) => (
+        <div key={record.email}>
+          <input 
+            type="checkbox" 
+            checked={selectedMembers.includes(record.email)} 
+            onChange={() => {
+              setSelectedMembers((prev) =>
+                prev.includes(record.email)
+                  ? prev.filter((email) => email !== record.email)
+                  : [...prev, record.email]
+              );
+            }}
+          />
+          {record.name}
+        </div>
+      ))}
+      <button onClick={handleCreateGroup}>Create Group</button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

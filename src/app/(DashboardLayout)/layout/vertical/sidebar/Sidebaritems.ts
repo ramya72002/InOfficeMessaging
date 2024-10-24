@@ -53,13 +53,13 @@ const SidebarContent: MenuItem[] = [
         icon: "solar:bedside-table-3-linear",
         id: uniqueId(),
         url: "/ui/chat",
+      },
+      {
+        name: "Group Chat",
+        icon: "solar:airbuds-case-charge-outline",
+        id: uniqueId(),
+        url: "/ui/groupchat",
       }
-      // {
-      //   name: "menu2",
-      //   icon: "solar:password-minimalistic-outline",
-      //   id: uniqueId(),
-      //   url: "/ui/form",
-      // },
       // {
       //   name: "menu3",
       //   icon: "solar:airbuds-case-charge-outline",

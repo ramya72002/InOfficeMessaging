@@ -9,11 +9,35 @@
     border-right: 1px solid #e0e0e0;
     padding: 20px;
     overflow-y: auto;
+    position: relative; // Added for positioning
 
     .contacts-header {
       font-size: 18px;
       font-weight: bold;
       margin-bottom: 20px;
+      position: relative;
+
+      // Plus button for creating a new group
+      .create-group-button {
+        position: absolute;
+        top: 0;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: darken(#007bff, 10%);
+        }
+      }
     }
 
     .contact-item {
@@ -27,6 +51,7 @@
 
       &:hover {
         background-color: #e9e9eb;
+        transform: scale(1.02); // Add scale effect on hover
       }
 
       &.contact-selected {
@@ -43,6 +68,7 @@
         font-size: 20px;
         font-weight: bold;
         color: white;
+        background-color: #007bff; // Background color for avatars
         margin-right: 10px;
       }
 
@@ -86,6 +112,7 @@
       flex: 1;
       padding: 20px;
       overflow-y: auto;
+      background-color: #f9f9f9; // Light background for chat body
 
       .message {
         margin-bottom: 10px;
@@ -102,6 +129,9 @@
             color: white;
             padding: 10px;
             border-radius: 5px;
+            max-width: 70%; // Limit message width
+            word-wrap: break-word; // Wrap long messages
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Add shadow
           }
         }
 
@@ -111,6 +141,9 @@
             color: black;
             padding: 10px;
             border-radius: 5px;
+            max-width: 70%; // Limit message width
+            word-wrap: break-word; // Wrap long messages
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Add shadow
           }
         }
 
@@ -144,6 +177,12 @@
         border: 1px solid #e0e0e0;
         border-radius: 5px;
         margin-right: 10px;
+        transition: border-color 0.2s ease;
+
+        &:focus {
+          border-color: #007bff; // Change border color on focus
+          outline: none;
+        }
       }
 
       .send-message-button {
@@ -153,6 +192,11 @@
         background-color: #007bff;
         color: white;
         cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: darken(#007bff, 10%); // Darken button on hover
+        }
 
         &:disabled {
           background-color: #ccc;
