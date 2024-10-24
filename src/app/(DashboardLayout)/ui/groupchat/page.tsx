@@ -15,15 +15,29 @@ interface Message {
 }
 
 const GroupChat: React.FC = () => {
-    const email = localStorage.getItem('email'); // Get email from local storage
+    const [email, setEmail] = useState<string | null>(null); // State for email
     const [groups, setGroups] = useState<Group[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [selectedGroup, setSelectedGroup] = useState<string | null>(null); // State for selected group
     const [newMessage, setNewMessage] = useState<string>(''); // State for new message input
 
+    // Fetch email from localStorage when the component mounts
+    useEffect(() => {
+        const storedEmail = localStorage.getItem('email');
+        setEmail(storedEmail); // Set email in state
+    }, []);
+
+    // Fetch groups whenever the email is set
+    useEffect(() => {
+        if (email) {
+            fetchGroups();
+        }
+    }, [email]);
+
     const fetchGroups = async () => {
+        if (!email) return; // Ensure email is available
         try {
-            const response = await axios.get(`https://in-office-messaging-backend.vercel.app/list_groups?email=${email}`); // Replace with actual email
+            const response = await axios.get(`https://in-office-messaging-backend.vercel.app/list_groups?email=${email}`);
             setGroups(response.data.groups);
         } catch (error) {
             console.error('Error fetching groups:', error);
@@ -45,11 +59,11 @@ const GroupChat: React.FC = () => {
     };
 
     const handleSendMessage = async () => {
-        if (!newMessage || !selectedGroup) return; // Check for empty message or no group selected
+        if (!newMessage || !selectedGroup || !email) return; // Check for empty message or no group selected
 
         try {
             const response = await axios.post('https://in-office-messaging-backend.vercel.app/send_group_message', {
-                sender: email, // Replace with the actual sender's identifier
+                sender: email, // Use the stored email as the sender's identifier
                 group_id: selectedGroup,
                 message: newMessage,
             });
@@ -63,14 +77,10 @@ const GroupChat: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        fetchGroups();
-    }, []);
-
     return (
         <div className="chat-container">
             <div className="contacts-sidebar">
-                <h2>Groups</h2> {/* Heading for groups */}
+                <h2>Groups</h2>
                 {groups.map(group => (
                     <div key={group._id} onClick={() => handleGroupSelect(group._id)}>
                         <h3>
