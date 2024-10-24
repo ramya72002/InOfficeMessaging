@@ -32,11 +32,18 @@ const Chat = () => {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
-
+  
   useEffect(() => {
     const fetchRecords = async () => {
+      const email = localStorage.getItem('email');
+
+      if (!email) {
+        setError("Email not found in local storage.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const email = localStorage.getItem('email');
         const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
 
         if (response.data) {
@@ -57,8 +64,14 @@ const Chat = () => {
   }, []);
 
   const fetchMessages = async (contactEmail: string) => {
+    const userEmail = localStorage.getItem('email');
+    
+    if (!userEmail) {
+      setError("Email not found in local storage.");
+      return;
+    }
+
     try {
-      const userEmail = localStorage.getItem('email');
       const response = await axios.get(`https://in-office-messaging-backend.vercel.app/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
       setMessages(response.data.conversation || []);
     } catch (err) {
@@ -73,6 +86,12 @@ const Chat = () => {
   const handleSendMessage = async () => {
     if (newMessage.trim() && selectedContact) {
       const userEmail = localStorage.getItem('email');
+      
+      if (!userEmail) {
+        setError("Email not found in local storage.");
+        return;
+      }
+
       const newMessageObj = {
         sender: userEmail,
         receiver: selectedContact.email,
@@ -120,8 +139,14 @@ const Chat = () => {
   }, [messages]);
 
   const handleCreateGroup = async () => {
+    const userEmail = localStorage.getItem('email');
+
+    if (!userEmail) {
+      setError("Email not found in local storage.");
+      return;
+    }
+
     try {
-      const userEmail = localStorage.getItem('email');
       const groupData = {
         group_name: groupName,
         createdBy: userEmail,
@@ -228,38 +253,37 @@ const Chat = () => {
       </div>
 
       {showGroupModal && (
-  <div className="modal">
-    <div className="modal-content">
-      <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
-      <h2>Create New Group</h2>
-      <input 
-        type="text" 
-        value={groupName} 
-        onChange={(e) => setGroupName(e.target.value)} 
-        placeholder="Group Name"
-      />
-      <h3>Select Members:</h3>
-      {records.map((record) => (
-        <div key={record.email}>
-          <input 
-            type="checkbox" 
-            checked={selectedMembers.includes(record.email)} 
-            onChange={() => {
-              setSelectedMembers((prev) =>
-                prev.includes(record.email)
-                  ? prev.filter((email) => email !== record.email)
-                  : [...prev, record.email]
-              );
-            }}
-          />
-          {record.name}
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
+            <h2>Create New Group</h2>
+            <input 
+              type="text" 
+              value={groupName} 
+              onChange={(e) => setGroupName(e.target.value)} 
+              placeholder="Group Name"
+            />
+            <h3>Select Members:</h3>
+            {records.map((record) => (
+              <div key={record.email}>
+                <input 
+                  type="checkbox" 
+                  checked={selectedMembers.includes(record.email)} 
+                  onChange={() => {
+                    setSelectedMembers((prev) =>
+                      prev.includes(record.email)
+                        ? prev.filter(email => email !== record.email)
+                        : [...prev, record.email]
+                    );
+                  }}
+                />
+                {record.name}
+              </div>
+            ))}
+            <button onClick={handleCreateGroup}>Create Group</button>
+          </div>
         </div>
-      ))}
-      <button onClick={handleCreateGroup}>Create Group</button>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 };
