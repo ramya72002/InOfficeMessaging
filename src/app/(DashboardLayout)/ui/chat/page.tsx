@@ -14,10 +14,11 @@ export interface Record {
   };
 }
 
+// Define a function to generate a color based on a hash of the email
 const generateColor = (email: string) => {
   const colors = ['#FF5733', '#33FF57', '#3357FF', '#F1C40F', '#8E44AD', '#3498DB'];
   const hash = email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return colors[hash % colors.length];
+  return colors[hash % colors.length]; // Select a color based on the hash
 };
 
 const Chat = () => {
@@ -31,19 +32,15 @@ const Chat = () => {
   const [groupName, setGroupName] = useState<string>('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
-  const chatBodyRef = useRef<HTMLDivElement | null>(null);
   
+  // Reference for scrolling to the bottom of the chat body
+  const chatBodyRef = useRef<HTMLDivElement | null>(null);
+
+  // Fetch contacts
   useEffect(() => {
     const fetchRecords = async () => {
-      const email = localStorage.getItem('email');
-
-      if (!email) {
-        setError("Email not found in local storage.");
-        setLoading(false);
-        return;
-      }
-
       try {
+        const email = localStorage.getItem('email');
         const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
 
         if (response.data) {
@@ -63,15 +60,10 @@ const Chat = () => {
     fetchRecords();
   }, []);
 
+  // Fetch messages for the selected contact
   const fetchMessages = async (contactEmail: string) => {
-    const userEmail = localStorage.getItem('email');
-    
-    if (!userEmail) {
-      setError("Email not found in local storage.");
-      return;
-    }
-
     try {
+      const userEmail = localStorage.getItem('email');
       const response = await axios.get(`https://in-office-messaging-backend.vercel.app/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
       setMessages(response.data.conversation || []);
     } catch (err) {
@@ -80,18 +72,13 @@ const Chat = () => {
   };
 
   const getCurrentTimestamp = () => {
-    return new Date().toLocaleDateString('en-CA') + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return (new Date()).toLocaleDateString('en-CA') + ' ' + (new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Handle sending a new message
   const handleSendMessage = async () => {
     if (newMessage.trim() && selectedContact) {
       const userEmail = localStorage.getItem('email');
-      
-      if (!userEmail) {
-        setError("Email not found in local storage.");
-        return;
-      }
-
       const newMessageObj = {
         sender: userEmail,
         receiver: selectedContact.email,
@@ -113,38 +100,37 @@ const Chat = () => {
     }
   };
 
+  // Handle keydown event for sending messages
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleSendMessage();
-      event.preventDefault();
+      event.preventDefault(); // Prevent form submission if in a form context
     }
   };
 
+  // Fetch messages when a contact is selected
   useEffect(() => {
     if (selectedContact) {
       fetchMessages(selectedContact.email);
-
+      
+      // Set up interval to fetch messages every second
       const intervalId = setInterval(() => {
         fetchMessages(selectedContact.email);
       }, 1000);
 
+      // Clear interval on component unmount or when selectedContact changes
       return () => clearInterval(intervalId);
     }
   }, [selectedContact]);
 
+  // Scroll to the bottom of the chat body whenever messages change
   useEffect(() => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
   }, [messages]);
-
   const handleCreateGroup = async () => {
     const userEmail = localStorage.getItem('email');
-
-    if (!userEmail) {
-      setError("Email not found in local storage.");
-      return;
-    }
 
     try {
       const groupData = {
@@ -235,7 +221,7 @@ const Chat = () => {
                 className="send-message-input"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
+                onKeyDown={handleKeyDown} // Add the keydown event handler here
                 placeholder="Type a message..."
               />
               <button
