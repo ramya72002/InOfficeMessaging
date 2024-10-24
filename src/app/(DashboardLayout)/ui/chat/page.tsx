@@ -28,10 +28,6 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [showGroupModal, setShowGroupModal] = useState<boolean>(false);
-  const [groupName, setGroupName] = useState<string>('');
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-
   
   // Reference for scrolling to the bottom of the chat body
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
@@ -129,32 +125,6 @@ const Chat = () => {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
   }, [messages]);
-  const handleCreateGroup = async () => {
-    const userEmail = localStorage.getItem('email');
-
-    try {
-      const groupData = {
-        group_name: groupName,
-        createdBy: userEmail,
-        members: selectedMembers,
-      };
-      const response = await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
-      if (response.status === 200) {
-        setShowGroupModal(false);
-        setGroupName('');
-        setSelectedMembers([]);
-        alert('Group created successfully!');
-      } else {
-        setError('Failed to create group. Please try again.');
-      }
-    } catch (err) {
-      setError('Error creating group. Please check the console for details.');
-    }
-  };
-
-  const handleToggleGroupModal = () => {
-    setShowGroupModal(!showGroupModal);
-  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -167,10 +137,7 @@ const Chat = () => {
   return (
     <div className="chat-container">
       <div className="contacts-sidebar">
-        <div className="contacts-header">
-          Contacts
-          <button className="create-group-button" onClick={handleToggleGroupModal}>+</button>
-        </div>
+        <div className="contacts-header">Contacts</div>
         {records.map((record) => (
           <div
             key={record.email}
@@ -237,39 +204,6 @@ const Chat = () => {
           <div className="chat-header">Select a contact to start chatting</div>
         )}
       </div>
-
-      {showGroupModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
-            <h2>Create New Group</h2>
-            <input 
-              type="text" 
-              value={groupName} 
-              onChange={(e) => setGroupName(e.target.value)} 
-              placeholder="Group Name"
-            />
-            <h3>Select Members:</h3>
-            {records.map((record) => (
-              <div key={record.email}>
-                <input 
-                  type="checkbox" 
-                  checked={selectedMembers.includes(record.email)} 
-                  onChange={() => {
-                    setSelectedMembers((prev) =>
-                      prev.includes(record.email)
-                        ? prev.filter(email => email !== record.email)
-                        : [...prev, record.email]
-                    );
-                  }}
-                />
-                {record.name}
-              </div>
-            ))}
-            <button onClick={handleCreateGroup}>Create Group</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
