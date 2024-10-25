@@ -163,19 +163,21 @@ const GroupChat: React.FC = () => {
 
     return (
         <div className="chat-container">
-            <div className="contacts-sidebar">
-                <h2>Groups</h2>
-                <button onClick={() => setShowGroupModal(true)} className="create-group-btn">+ Create Group</button>
-
-                {groups.map(group => (
-                    <div key={group._id} onClick={() => handleGroupSelect(group._id)}>
-                        <h3>
-                            <span className="profile-indicator" style={{ backgroundColor: '#4caf50' }}></span>
-                            {group.group_name}
-                        </h3>
-                    </div>
-                ))}
+              <div className="contacts-sidebar">
+        <div className="header-container">
+            <h2>Groups</h2>
+            <button onClick={() => setShowGroupModal(true)} className="create-group-btn">+ Create Group</button>
+        </div>
+        
+        {groups.map(group => (
+            <div key={group._id} onClick={() => handleGroupSelect(group._id)}>
+                <h3>
+                    <span className="profile-indicator" style={{ backgroundColor: '#4caf50' }}></span>
+                    {group.group_name}
+                </h3>
             </div>
+        ))}
+    </div>
 
             <div className="chat-window">
                 {selectedGroup && (
