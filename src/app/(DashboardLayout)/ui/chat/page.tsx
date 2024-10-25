@@ -31,8 +31,8 @@ const Chat = () => {
   const [showGroupModal, setShowGroupModal] = useState<boolean>(false);
   const [groupName, setGroupName] = useState<string>('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [selectAll, setSelectAll] = useState<boolean>(false);
 
-  
   // Reference for scrolling to the bottom of the chat body
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,6 +59,17 @@ const Chat = () => {
 
     fetchRecords();
   }, []);
+
+  // Handle select all functionality
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedMembers([]); // Clear all selections
+    } else {
+      const allEmails = records.map((record) => record.email);
+      setSelectedMembers(allEmails); // Select all emails
+    }
+    setSelectAll(!selectAll); // Toggle select all
+  };
 
   // Fetch messages for the selected contact
   const fetchMessages = async (contactEmail: string) => {
@@ -112,7 +123,7 @@ const Chat = () => {
   useEffect(() => {
     if (selectedContact) {
       fetchMessages(selectedContact.email);
-      
+
       // Set up interval to fetch messages every second
       const intervalId = setInterval(() => {
         fetchMessages(selectedContact.email);
@@ -129,6 +140,7 @@ const Chat = () => {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
   }, [messages]);
+
   const handleCreateGroup = async () => {
     const userEmail = localStorage.getItem('email');
 
@@ -242,31 +254,47 @@ const Chat = () => {
         <div className="modal">
           <div className="modal-content">
             <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
-            <h2>Create New Group</h2>
-            <input 
-              type="text" 
-              value={groupName} 
-              onChange={(e) => setGroupName(e.target.value)} 
+            <h2>Create Group</h2>
+            <input
+              type="text"
+              className="group-name-input"
               placeholder="Group Name"
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
             />
-            <h3>Select Members:</h3>
-            {records.map((record) => (
-              <div key={record.email}>
-                <input 
-                  type="checkbox" 
-                  checked={selectedMembers.includes(record.email)} 
-                  onChange={() => {
-                    setSelectedMembers((prev) =>
-                      prev.includes(record.email)
-                        ? prev.filter(email => email !== record.email)
-                        : [...prev, record.email]
-                    );
-                  }}
-                />
-                {record.name}
-              </div>
-            ))}
-            <button onClick={handleCreateGroup}>Create Group</button>
+            <h3>Select Members</h3>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={handleSelectAll}
+              />
+              Select All
+            </label>
+            <ul className="members-list">
+              {records.map((record) => (
+                <li key={record.email}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={selectedMembers.includes(record.email)}
+                      onChange={() => {
+                        const isSelected = selectedMembers.includes(record.email);
+                        if (isSelected) {
+                          setSelectedMembers(selectedMembers.filter((email) => email !== record.email));
+                        } else {
+                          setSelectedMembers([...selectedMembers, record.email]);
+                        }
+                      }}
+                    />
+                    {record.name} ({record.email})
+                  </label>
+                </li>
+              ))}
+            </ul>
+            <button className="create-group-button" onClick={handleCreateGroup}>
+              Create Group
+            </button>
           </div>
         </div>
       )}
