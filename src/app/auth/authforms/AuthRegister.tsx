@@ -46,7 +46,7 @@ const AuthRegister = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post("https://in-office-messaging-backend.vercel.app/signup", {
+      const response = await axios.post("http://127.0.0.1:80/signup", {
         name,
         email,
         company_name: companyName,
@@ -71,7 +71,7 @@ const AuthRegister = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post("https://in-office-messaging-backend.vercel.app/verify-otp", { email, otp });
+      const response = await axios.post("http://127.0.0.1:80/verify-otp", { email, otp });
       if (response.data.success) {
         setMessage("OTP verified successfully!");
         localStorage.setItem("email", email);

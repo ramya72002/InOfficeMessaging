@@ -29,11 +29,11 @@ const SendMessage = () => {
     const fetchRecords = async () => {
       try {
         const email = localStorage.getItem('email'); // Get email from local storage
-        const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
+        const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${email}`);
 
         if (response.data) {
           const companyName = response.data.company_name; // Get the company name from the first record
-          const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${companyName}`);
+          const companyResponse = await axios.get(`http://127.0.0.1:80/get_forms_company_name?company_name=${companyName}`);
           setRecords(companyResponse.data); // Set the records in state
         } else {
           setError("No records found for this user.");

@@ -32,7 +32,7 @@ const SendSMS: React.FC<SendSMSProps> = ({ selectedRecords, onBack }) => {
     try {
       // Send SMS for each provider group
       for (const provider in providerGroups) {
-        const response = await fetch('https://in-office-messaging-backend.vercel.app/send_sms', {
+        const response = await fetch('http://127.0.0.1:80/send_sms', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

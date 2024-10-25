@@ -32,6 +32,7 @@ const Chat = () => {
   const [groupName, setGroupName] = useState<string>('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
+  const [file, setFile] = useState<File | null>(null); // State to hold the selected file
 
   // Reference for scrolling to the bottom of the chat body
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
@@ -41,11 +42,11 @@ const Chat = () => {
     const fetchRecords = async () => {
       try {
         const email = localStorage.getItem('email');
-        const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
+        const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${email}`);
 
         if (response.data) {
           const companyName = response.data.company_name;
-          const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${companyName}`);
+          const companyResponse = await axios.get(`http://127.0.0.1:80/get_forms_company_name?company_name=${companyName}`);
           setRecords(companyResponse.data);
         } else {
           setError("No records found for this user.");
@@ -74,13 +75,13 @@ const Chat = () => {
   // Fetch messages for the selected contact
   const fetchMessages = async (contactEmail: string) => {
     try {
-      const userEmail = localStorage.getItem('email');
-      const response = await axios.get(`https://in-office-messaging-backend.vercel.app/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
-      setMessages(response.data.conversation || []);
+        const userEmail = localStorage.getItem('email');
+        const response = await axios.get(`http://127.0.0.1:80/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
+        setMessages(response.data.conversation || []);
     } catch (err) {
-      setError("Error fetching messages.");
+        setError("Error fetching messages.");
     }
-  };
+};
 
   const getCurrentTimestamp = () => {
     return (new Date()).toLocaleDateString('en-CA') + ' ' + (new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -90,18 +91,31 @@ const Chat = () => {
   const handleSendMessage = async () => {
     if (newMessage.trim() && selectedContact) {
       const userEmail = localStorage.getItem('email');
-      const newMessageObj = {
-        sender: userEmail,
-        receiver: selectedContact.email,
-        message: newMessage,
-        timestamp: getCurrentTimestamp(),
-      };
-
+      const formData = new FormData(); // Create a FormData object to handle file uploads
+  
+      // Append data to the FormData object
+      if (file) {
+        formData.append('file', file); // Only append file if it's not null
+      }
+  
+      formData.append('sender', userEmail || ''); // Ensure sender is a non-null string
+      formData.append('receiver', selectedContact.email);
+      formData.append('message', newMessage);
+      formData.append('timestamp', getCurrentTimestamp());
+  
       try {
-        const response = await axios.post('https://in-office-messaging-backend.vercel.app/send_message', newMessageObj);
+        const response = await axios.post('http://127.0.0.1:80/send_message', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data', // Set the correct content type for file uploads
+          },
+        });
         if (response.status === 200) {
-          setMessages((prevMessages) => [...prevMessages, newMessageObj]);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: userEmail || '', message: newMessage, timestamp: getCurrentTimestamp() },
+          ]);
           setNewMessage('');
+          setFile(null); // Reset file state after sending
         } else {
           setError('Failed to send message. Please try again.');
         }
@@ -110,6 +124,7 @@ const Chat = () => {
       }
     }
   };
+  
 
   // Handle keydown event for sending messages
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -150,7 +165,7 @@ const Chat = () => {
         createdBy: userEmail,
         members: selectedMembers,
       };
-      const response = await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
+      const response = await axios.post('http://127.0.0.1:80/create_group', groupData);
       if (response.status === 200) {
         setShowGroupModal(false);
         setGroupName('');
@@ -166,6 +181,11 @@ const Chat = () => {
 
   const handleToggleGroupModal = () => {
     setShowGroupModal(!showGroupModal);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0] || null;
+    setFile(selectedFile);
   };
 
   if (loading) {
@@ -227,75 +247,57 @@ const Chat = () => {
               )}
             </div>
 
-            <div className="send-message-container">
+            <div className="message-input">
               <input
                 type="text"
-                className="send-message-input"
+                placeholder="Type a message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={handleKeyDown} // Add the keydown event handler here
-                placeholder="Type a message..."
+                onKeyDown={handleKeyDown}
               />
-              <button
-                className="send-message-button"
-                onClick={handleSendMessage}
-                disabled={!newMessage.trim()}
-              >
-                Send
-              </button>
+              <input
+                type="file"
+                accept="image/*, .pdf"
+                onChange={handleFileChange}
+              />
+              <button onClick={handleSendMessage}>Send</button>
             </div>
           </>
         ) : (
-          <div className="chat-header">Select a contact to start chatting</div>
+          <div className="no-contact-selected">Select a contact to chat with</div>
         )}
       </div>
 
       {showGroupModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
-            <h2>Create Group</h2>
-            <input
-              type="text"
-              className="group-name-input"
-              placeholder="Group Name"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-            />
-            <h3>Select Members</h3>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectAll}
-                onChange={handleSelectAll}
-              />
-              Select All
-            </label>
-            <ul className="members-list">
-              {records.map((record) => (
-                <li key={record.email}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={selectedMembers.includes(record.email)}
-                      onChange={() => {
-                        const isSelected = selectedMembers.includes(record.email);
-                        if (isSelected) {
-                          setSelectedMembers(selectedMembers.filter((email) => email !== record.email));
-                        } else {
-                          setSelectedMembers([...selectedMembers, record.email]);
-                        }
-                      }}
-                    />
-                    {record.name} ({record.email})
-                  </label>
-                </li>
-              ))}
-            </ul>
-            <button className="create-group-button" onClick={handleCreateGroup}>
-              Create Group
-            </button>
+        <div className="group-modal">
+          <h3>Create Group</h3>
+          <input
+            type="text"
+            placeholder="Group Name"
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+          />
+          <label>
+            <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
+            Select All
+          </label>
+          <div className="group-members">
+            {records.map((record) => (
+              <label key={record.email}>
+                <input
+                  type="checkbox"
+                  checked={selectedMembers.includes(record.email)}
+                  onChange={() => {
+                    const isSelected = selectedMembers.includes(record.email);
+                    setSelectedMembers(isSelected ? selectedMembers.filter(email => email !== record.email) : [...selectedMembers, record.email]);
+                  }}
+                />
+                {record.name}
+              </label>
+            ))}
           </div>
+          <button onClick={handleCreateGroup}>Create Group</button>
+          <button onClick={handleToggleGroupModal}>Close</button>
         </div>
       )}
     </div>
