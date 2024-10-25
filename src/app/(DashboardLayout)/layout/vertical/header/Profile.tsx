@@ -1,12 +1,30 @@
+import { useState, useEffect } from "react";
 import { Button, Dropdown } from "flowbite-react";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import axios from "axios";
 
 const Profile = () => {
+  const [name, setName] = useState(""); // State to store the user's name
   const router = useRouter(); // Initialize router for programmatic navigation
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const email = localStorage.getItem('email'); // Get email from local storage
+        const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
+        const fetchedName = response.data.name;
+        setName(fetchedName); // Set the fetched name in the state
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserName(); // Fetch user's name on component mount
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear(); // Clear all local storage
@@ -14,7 +32,8 @@ const Profile = () => {
   };
 
   return (
-    <div className="relative group/menu">
+    <div className="relative group/menu flex items-center gap-4">
+      <span className="text-dark font-medium">Hi {name}</span> {/* Display user's name */}
       <Dropdown
         label=""
         className="rounded-sm w-44"
