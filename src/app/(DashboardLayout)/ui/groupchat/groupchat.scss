@@ -74,34 +74,48 @@
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 
   h2 {
-    margin-bottom: 20px; /* Margin for the title */
-    color: #007bff; /* Title color */
-    font-size: 1.5em; /* Larger font size for title */
+      margin-bottom: 20px; /* Margin for the title */
+      color: #007bff; /* Title color */
+      font-size: 1.5em; /* Larger font size for title */
   }
 
   h3 {
-    margin: 10px 0; /* Margin for each group name */
-    cursor: pointer; /* Change cursor to pointer */
-    transition: background-color 0.3s; /* Smooth background transition */
-    padding: 10px; /* Padding for clickable area */
-    border-radius: 5px; /* Rounded corners */
-    display: flex; /* Use flexbox for alignment */
-    align-items: center; /* Center align items */
+      margin: 10px 0; /* Margin for each group name */
+      cursor: pointer; /* Change cursor to pointer */
+      transition: background-color 0.3s; /* Smooth background transition */
+      padding: 10px; /* Padding for clickable area */
+      border-radius: 5px; /* Rounded corners */
+      display: flex; /* Use flexbox for alignment */
+      align-items: center; /* Center align items */
 
-    /* Profile color indicators */
-    .profile-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%; /* Circular profile indicator */
-      margin-right: 10px; /* Space between indicator and group name */
-      background-color: #007bff; /* Default color, can be dynamic */
-    }
+      /* Profile color indicators */
+      .profile-indicator {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%; /* Circular profile indicator */
+          margin-right: 10px; /* Space between indicator and group name */
+          background-color: #007bff; /* Default color, can be dynamic */
+      }
 
-    &:hover {
-      background-color: #e1f5fe; /* Light blue on hover */
-    }
+      &:hover {
+          background-color: #e1f5fe; /* Light blue on hover */
+      }
   }
 }
+
+.chat-window {
+  flex-grow: 1; /* Take the remaining space next to the sidebar */
+  padding: 20px; /* Padding for better spacing */
+  background-color: #fff; /* Light background for chat area */
+  overflow-y: auto; /* Allow scrolling if content exceeds the area */
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+
+  h2 {
+      margin-bottom: 10px; /* Spacing for chat window title */
+      color: #333; /* Title color */
+  }
+}
+
 
 .chat-window {
   flex: 1; /* Take the remaining width */
