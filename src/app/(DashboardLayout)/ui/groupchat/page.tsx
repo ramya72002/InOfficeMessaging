@@ -56,11 +56,11 @@ const GroupChat: React.FC = () => {
         const fetchRecords = async () => {
           try {
             const email = localStorage.getItem('email');
-            const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${email}`);
+            const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
     
             if (response.data) {
               const companyName = response.data.company_name;
-              const companyResponse = await axios.get(`http://127.0.0.1:80/get_forms_company_name?company_name=${companyName}`);
+              const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${companyName}`);
               setRecords(companyResponse.data);
             } else {
               setError("No records found for this user.");
@@ -87,7 +87,7 @@ const GroupChat: React.FC = () => {
     const fetchGroups = async () => {
         if (!email) return; // Ensure email is available
         try {
-            const response = await axios.get(`http://127.0.0.1:80/list_groups?email=${email}`);
+            const response = await axios.get(`https://in-office-messaging-backend.vercel.app/list_groups?email=${email}`);
             setGroups(response.data.groups);
         } catch (error) {
             console.error('Error fetching groups:', error);
@@ -96,7 +96,7 @@ const GroupChat: React.FC = () => {
 
     const fetchMessages = async (groupId: string) => {
         try {
-            const response = await axios.get(`http://127.0.0.1:80/get_group_messages?group_id=${groupId}`);
+            const response = await axios.get(`https://in-office-messaging-backend.vercel.app/get_group_messages?group_id=${groupId}`);
             setMessages(response.data.messages);
         } catch (error) {
             console.error('Error fetching messages:', error);
@@ -112,7 +112,7 @@ const GroupChat: React.FC = () => {
         if (!newMessage || !selectedGroup || !email) return; // Check for empty message or no group selected
 
         try {
-            const response = await axios.post('http://127.0.0.1:80/send_group_message', {
+            const response = await axios.post('https://in-office-messaging-backend.vercel.app/send_group_message', {
                 sender: email, // Use the stored email as the sender's identifier
                 group_id: selectedGroup,
                 message: newMessage,
@@ -136,7 +136,7 @@ const GroupChat: React.FC = () => {
             createdBy: userEmail,
             members: selectedMembers,
           };
-          const response = await axios.post('http://127.0.0.1:80/create_group', groupData);
+          const response = await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
           if (response.status === 200) {
             setShowGroupModal(false);
             setGroupName('');

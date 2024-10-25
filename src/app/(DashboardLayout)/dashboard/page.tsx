@@ -55,7 +55,7 @@
 //     const fetchRecords = async () => {
 //       try {
 //         const email = localStorage.getItem("email"); // Replace with the actual email to fetch data for
-//         const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${email}`);
+//         const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
 //         setRecords(response.data.records);
 //         setFilteredRecords(response.data.records);
 //       } catch (error) {
