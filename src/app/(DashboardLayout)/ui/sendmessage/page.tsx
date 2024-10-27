@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import './sendmessage.scss';
 import axios from 'axios';
 import SendEmail from '@/app/components/SendEmail';
-import { withAuth } from '@/utils/theme/auth';
+import { withAuth } from '../../../../utils/theme/auth'
 
 // Define the interface for a Record
 export interface Record {

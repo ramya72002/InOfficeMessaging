@@ -2,7 +2,7 @@
 import React, { useState, useEffect , useRef} from 'react';
 import axios from 'axios';
 import './groupchat.scss';
-import { withAuth } from '@/utils/theme/auth';
+import { withAuth } from '../../../../utils/theme/auth'
 
 export interface Record {
     name: string;
