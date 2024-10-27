@@ -138,6 +138,12 @@ const GroupChat: React.FC = () => {
         }
     };
 
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
+        }
+    };
+
     const handleCreateGroup = async () => {
         const userEmail = localStorage.getItem('email');
 
@@ -219,6 +225,7 @@ const GroupChat: React.FC = () => {
                                 type="text"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
+                                onKeyDown={handleKeyPress} // Add this line
                                 placeholder="Type your message here..."
                             />
                             <button onClick={handleSendMessage}>Send</button>
