@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './chat.scss';
-
+import { withAuth } from '../../../../utils/theme/auth'
 export interface Record {
   name: string;
   email: string;
@@ -274,4 +274,4 @@ const Chat = () => {
   );
 };
 
-export default Chat;
+export default withAuth(Chat);

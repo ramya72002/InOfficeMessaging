@@ -2,6 +2,7 @@
 import React, { useState, useEffect , useRef} from 'react';
 import axios from 'axios';
 import './groupchat.scss';
+import { withAuth } from '@/utils/theme/auth';
 
 export interface Record {
     name: string;
@@ -293,4 +294,4 @@ const GroupChat: React.FC = () => {
     );
 };
 
-export default GroupChat;
+export default withAuth(GroupChat);

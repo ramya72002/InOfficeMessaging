@@ -5,6 +5,7 @@ import './sendsms.scss';
 import axios from 'axios';
 import SendEmail from '@/app/components/SendEmail';
 import SendSMS from '@/app/components/SendSms';
+import { withAuth } from '@/utils/theme/auth';
 
 // Define the interface for a Record
 export interface Record {
@@ -153,4 +154,4 @@ const SendMessage = () => {
   );
 };
 
-export default SendMessage;
+export default withAuth(SendMessage);
