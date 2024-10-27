@@ -39,6 +39,7 @@ const GroupChat: React.FC = () => {
     const [groupName, setGroupName] = useState<string>('');
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [fetchInterval, setFetchInterval] = useState<NodeJS.Timeout | null>(null); // State to hold interval ID
 
     useEffect(() => {
         const storedEmail = localStorage.getItem('email');
@@ -105,6 +106,18 @@ const GroupChat: React.FC = () => {
     const handleGroupSelect = (groupId: string) => {
         setSelectedGroup(groupId);
         fetchMessages(groupId);
+
+        // Clear previous interval
+        if (fetchInterval) {
+            clearInterval(fetchInterval);
+        }
+
+        // Set interval to fetch messages every second
+        const intervalId = setInterval(() => {
+            fetchMessages(groupId);
+        }, 1000);
+
+        setFetchInterval(intervalId);
     };
 
     const handleSendMessage = async () => {
@@ -159,6 +172,15 @@ const GroupChat: React.FC = () => {
         setSelectedMembers(updatedMembers);
     };
 
+    // Clear interval on unmount or when group changes
+    useEffect(() => {
+        return () => {
+            if (fetchInterval) {
+                clearInterval(fetchInterval);
+            }
+        };
+    }, [fetchInterval]);
+
     return (
         <div className="chat-container">
             <div className="contacts-sidebar">
@@ -179,18 +201,18 @@ const GroupChat: React.FC = () => {
             <div className="chat-window">
                 {selectedGroup && (
                     <>
-                       <div className="messages">
-    {messages.map((msg, index) => (
-        <div
-            key={index}
-            className={`message ${msg.sender === email ? 'from-user' : 'from-other'}`}
-        >
-            <strong>{msg.sender === email ? 'You' : msg.sender}</strong>
-            <span>{msg.message}</span>
-            <em>{new Date(msg.timestamp).toLocaleString()}</em>
-        </div>
-    ))}
-</div>
+                        <div className="messages">
+                            {messages.map((msg, index) => (
+                                <div
+                                    key={index}
+                                    className={`message ${msg.sender === email ? 'from-user' : 'from-other'}`}
+                                >
+                                    <strong>{msg.sender === email ? 'You' : msg.sender}</strong>
+                                    <span>{msg.message}</span>
+                                    <em>{new Date(msg.timestamp).toLocaleString()}</em>
+                                </div>
+                            ))}
+                        </div>
 
                         <div className="message-input">
                             <input
