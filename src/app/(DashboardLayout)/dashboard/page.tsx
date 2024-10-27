@@ -1,4 +1,4 @@
-// export default PopularProducts;
+'use client'
 import { withAuth } from '../../../utils/theme/auth'
 import React from 'react'
 
