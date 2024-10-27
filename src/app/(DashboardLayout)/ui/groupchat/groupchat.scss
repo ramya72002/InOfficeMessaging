@@ -1,70 +1,9 @@
 .chat-container {
   display: flex;
-  height: 80vh; /* Full viewport height */
-  font-family: 'Arial', sans-serif; /* Use a clean font */
+  height: 80vh;
+  font-family: 'Arial', sans-serif;
 }
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
 
-  .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    position: relative;
-    width: 400px;
-
-    .close-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-      font-size: 18px;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      font-size: 14px;
-
-      &:focus {
-        border-color: #007bff;
-        outline: none;
-      }
-    }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: 500;
-    }
-
-    button {
-      margin-top: 10px;
-      padding: 10px 15px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
-  }
-}
 .contacts-sidebar {
   width: 300px;
   background-color: #f7f9fc;
@@ -76,7 +15,7 @@
   .header-container {
       display: flex;
       align-items: center;
-      justify-content: space-between; /* Space out the title and button */
+      justify-content: space-between;
       margin-bottom: 20px;
   }
 
@@ -93,7 +32,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s ease;
 
       &:hover {
           background-color: #0056b3;
@@ -101,116 +40,208 @@
   }
 
   h3 {
-      margin: 10px 0;
-      cursor: pointer;
-      transition: background-color 0.3s;
       padding: 10px;
-      border-radius: 5px;
+      cursor: pointer;
       display: flex;
       align-items: center;
+      color: #333;
+
+      &:hover {
+          background-color: #eef4fc;
+      }
 
       .profile-indicator {
           width: 10px;
           height: 10px;
-          border-radius: 50%;
           margin-right: 10px;
-          background-color: #007bff;
-      }
-
-      &:hover {
-          background-color: #e1f5fe;
+          border-radius: 50%;
       }
   }
 }
 
-
 .chat-window {
-  flex-grow: 1; /* Take the remaining space next to the sidebar */
-  padding: 20px; /* Padding for better spacing */
-  background-color: #fff; /* Light background for chat area */
-  overflow-y: auto; /* Allow scrolling if content exceeds the area */
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-
-  h2 {
-      margin-bottom: 10px; /* Spacing for chat window title */
-      color: #333; /* Title color */
-  }
-}
-
-
-.chat-window {
-  flex: 1; /* Take the remaining width */
-  background-color: #ffffff; /* White background for chat */
-  padding: 20px; /* Padding for better spacing */
-  overflow-y: auto; /* Allow scrolling for messages */
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Shadow to separate from sidebar */
+  flex: 1;
   display: flex;
-  flex-direction: column; /* Stack messages and input vertically */
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
 
   .messages {
-    flex: 1; /* Allow messages to take available space */
-    margin-bottom: 20px; /* Margin below messages */
-    overflow-y: auto; /* Allow scrolling if messages exceed visible area */
+      overflow-y: auto;
+      padding: 10px;
+      border-bottom: 1px solid #e0e0e0;
 
-    div {
-      margin-bottom: 15px; /* Margin between messages */
-      padding: 10px; /* Padding for message bubbles */
-      border-radius: 8px; /* Rounded corners for message bubbles */
-      background-color: #f1f1f1; /* Light background for messages */
-      max-width: 70%; /* Limit width of message bubbles */
-      position: relative; /* Relative positioning for the timestamp */
+      .message {
+          padding: 8px;
+          border-radius: 10px;
+          margin-bottom: 10px;
+          display: inline-block;
 
-      strong {
-        color: #007bff; /* Color for sender name */
-        font-weight: bold; /* Bold font for sender */
+          &.from-contact {
+              background-color: #e1f5fe;
+              color: #0277bd;
+              text-align: left;
+          }
+
+          &.from-others {
+              background-color: #fce4ec;
+              color: #d81b60;
+              text-align: right;
+          }
+      }
+  }
+
+  .message-input {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+
+      input {
+          flex: 1;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
       }
 
-      em {
-        color: #888; /* Color for timestamp */
-        font-size: 0.9em; /* Slightly smaller font for timestamp */
-        position: absolute; /* Position timestamp */
-        bottom: 5px; /* Position it at the bottom of the message */
-        right: 10px; /* Position it towards the right */
+      button {
+          padding: 10px 15px;
+          background-color: #007bff;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          margin-left: 10px;
+
+          &:hover {
+              background-color: #0056b3;
+          }
       }
-    }
   }
 }
 
-.message-input {
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
-  align-items: center; /* Align items in the center */
-  margin-top: 20px; /* Space above the input area */
-  border-top: 1px solid #e0e0e0; /* Border above input area */
-  padding-top: 10px; /* Padding for spacing */
-  
-  input {
-    flex: 1; /* Take remaining space */
-    padding: 12px; /* More padding for a larger input area */
-    border: 1px solid #ccc;
-    border-radius: 20px; /* Rounder input corners */
-    margin-right: 10px; /* Space between input and button */
-    font-size: 1em; /* Increase font size for better readability */
-    outline: none; /* Remove outline */
-    transition: border-color 0.3s; /* Transition for focus effect */
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
 
-    &:focus {
-      border-color: #007bff; /* Highlight border on focus */
-    }
+  .modal-content {
+      width: 400px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+
+      .close-button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          font-size: 20px;
+          cursor: pointer;
+      }
+
+      h2 {
+          margin-bottom: 20px;
+          color: #333;
+      }
+
+      .group-name-input {
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+      }
+
+      .members-list {
+          max-height: 150px;
+          overflow-y: auto;
+          margin-bottom: 20px;
+
+          li {
+              display: flex;
+              align-items: center;
+              margin-bottom: 8px;
+          }
+      }
+
+      .create-group-button {
+          width: 100%;
+          padding: 10px;
+          background-color: #007bff;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+
+          &:hover {
+              background-color: #0056b3;
+          }
+      }
   }
-
-  button {
-    padding: 12px 20px; /* Increased button size */
-    background-color: #007bff; /* Button color */
-    color: white;
-    border: none;
-    border-radius: 20px; /* Rounder button corners */
-    cursor: pointer;
-    transition: background-color 0.3s; /* Transition for hover effect */
-    font-size: 1em; /* Increase font size for better readability */
-
-    &:hover {
-      background-color: #0056b3; /* Darker shade on hover */
-    }
-  }
-  
 }
+// groupchat.scss
+
+.message-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+ /* In groupchat.scss */
+
+.messages {
+  overflow-y: auto;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  max-width: 70%; /* Limit the message width */
+  padding: 8px;
+  border-radius: 12px;
+  margin: 5px 0;
+  word-wrap: break-word;
+}
+
+.from-user {
+  align-self: flex-end;
+  background-color: #daf8cb;
+  border-radius: 12px 12px 0 12px;
+  color: #333;
+}
+
+.from-other {
+  align-self: flex-start;
+  background-color: #f1f1f1;
+  border-radius: 12px 12px 12px 0;
+  color: #333;
+}
+
+.message strong {
+  font-size: 14px;
+  color: #666;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.message em {
+  font-size: 12px;
+  color: #888;
+  display: block;
+  text-align: right;
+  margin-top: 4px;
+}
+
+
+ 

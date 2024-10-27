@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './groupchat.scss';
+
 export interface Record {
     name: string;
     email: string;
@@ -9,9 +10,9 @@ export interface Record {
     phone: number;
     provider: string;
     signup_date: {
-      $date: string;
+        $date: string;
     };
-  }
+}
 
 interface Group {
     group_name: string;
@@ -21,71 +22,69 @@ interface Group {
 interface Message {
     sender: string;
     message: string;
-    timestamp: Date; // or string depending on your API response
+    timestamp: Date;
 }
 
 const GroupChat: React.FC = () => {
     const [records, setRecords] = useState<Record[]>([]);
-  const [selectedContact, setSelectedContact] = useState<Record | null>(null);
- const [loading, setLoading] = useState<boolean>(true);
-  const [selectAll, setSelectAll] = useState<boolean>(false);
-
-    const [email, setEmail] = useState<string | null>(null); // State for email
+    const [selectedContact, setSelectedContact] = useState<Record | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [selectAll, setSelectAll] = useState<boolean>(false);
+    const [email, setEmail] = useState<string | null>(null);
     const [groups, setGroups] = useState<Group[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [selectedGroup, setSelectedGroup] = useState<string | null>(null); // State for selected group
-    const [newMessage, setNewMessage] = useState<string>(''); // State for new message input
-    const [showGroupModal, setShowGroupModal] = useState<boolean>(false); // Show or hide group creation modal
-    const [groupName, setGroupName] = useState<string>(''); // State for new group name
-    const [selectedMembers, setSelectedMembers] = useState<string[]>([]); // State for selected members
-    const [error, setError] = useState<string | null>(null); // State for error handling
+    const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+    const [newMessage, setNewMessage] = useState<string>('');
+    const [showGroupModal, setShowGroupModal] = useState<boolean>(false);
+    const [groupName, setGroupName] = useState<string>('');
+    const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-    // Fetch email from localStorage when the component mounts
     useEffect(() => {
         const storedEmail = localStorage.getItem('email');
-        setEmail(storedEmail); // Set email in state
+        setEmail(storedEmail);
     }, []);
 
-    // Fetch groups whenever the email is set
     useEffect(() => {
         if (email) {
             fetchGroups();
         }
     }, [email]);
+
     useEffect(() => {
         const fetchRecords = async () => {
-          try {
-            const email = localStorage.getItem('email');
-            const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
-    
-            if (response.data) {
-              const companyName = response.data.company_name;
-              const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${companyName}`);
-              setRecords(companyResponse.data);
-            } else {
-              setError("No records found for this user.");
+            try {
+                const email = localStorage.getItem('email');
+                const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
+                if (response.data) {
+                    const companyName = response.data.company_name;
+                    const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${companyName}`);
+                    setRecords(companyResponse.data);
+                } else {
+                    setError("No records found for this user.");
+                }
+            } catch (err) {
+                setError("Error fetching records.");
+            } finally {
+                setLoading(false);
             }
-          } catch (err) {
-            setError("Error fetching records.");
-          } finally {
-            setLoading(false);
-          }
         };
-    
+
         fetchRecords();
-      }, []);
- const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedMembers([]); // Clear all selections
-    } else {
-      const allEmails = records.map((record) => record.email);
-      setSelectedMembers(allEmails); // Select all emails
-    }
-    setSelectAll(!selectAll); // Toggle select all
-  };
+    }, []);
+
+    const handleSelectAll = () => {
+        if (selectAll) {
+            setSelectedMembers([]);
+        } else {
+            const allEmails = records.map((record) => record.email);
+            setSelectedMembers(allEmails);
+        }
+        setSelectAll(!selectAll);
+    };
 
     const fetchGroups = async () => {
-        if (!email) return; // Ensure email is available
+        if (!email) return;
         try {
             const response = await axios.get(`https://in-office-messaging-backend.vercel.app/list_groups?email=${email}`);
             setGroups(response.data.groups);
@@ -104,21 +103,20 @@ const GroupChat: React.FC = () => {
     };
 
     const handleGroupSelect = (groupId: string) => {
-        setSelectedGroup(groupId); // Set selected group
-        fetchMessages(groupId); // Fetch messages for the selected group
+        setSelectedGroup(groupId);
+        fetchMessages(groupId);
     };
 
     const handleSendMessage = async () => {
-        if (!newMessage || !selectedGroup || !email) return; // Check for empty message or no group selected
+        if (!newMessage || !selectedGroup || !email) return;
 
         try {
             const response = await axios.post('https://in-office-messaging-backend.vercel.app/send_group_message', {
-                sender: email, // Use the stored email as the sender's identifier
+                sender: email,
                 group_id: selectedGroup,
                 message: newMessage,
             });
             if (response.data.success) {
-                // Reset new message input and fetch messages again
                 setNewMessage('');
                 fetchMessages(selectedGroup);
             }
@@ -126,69 +124,74 @@ const GroupChat: React.FC = () => {
             console.error('Error sending message:', error);
         }
     };
- 
+
     const handleCreateGroup = async () => {
         const userEmail = localStorage.getItem('email');
-    
+
         try {
-          const groupData = {
-            group_name: groupName,
-            createdBy: userEmail,
-            members: selectedMembers,
-          };
-          const response = await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
-          if (response.status === 200) {
-            setShowGroupModal(false);
-            setGroupName('');
-            setSelectedMembers([]);
-            alert('Group created successfully!');
-            fetchGroups();
-          } else {
-            setError('Failed to create group. Please try again.');
-          }
+            const groupData = {
+                group_name: groupName,
+                createdBy: userEmail,
+                members: selectedMembers,
+            };
+            const response = await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
+            if (response.status === 200) {
+                setShowGroupModal(false);
+                setGroupName('');
+                setSelectedMembers([]);
+                alert('Group created successfully!');
+                fetchGroups();
+            } else {
+                setError('Failed to create group. Please try again.');
+            }
         } catch (err) {
-          setError('Error creating group. Please check the console for details.');
+            setError('Error creating group. Please check the console for details.');
         }
-      };
-    
-      const handleToggleGroupModal = () => {
+    };
+
+    const handleToggleGroupModal = () => {
         setShowGroupModal(!showGroupModal);
-      };
+    };
 
     const handleRemoveMember = (index: number) => {
         const updatedMembers = [...selectedMembers];
-        updatedMembers.splice(index, 1); // Remove member by index
-        setSelectedMembers(updatedMembers); // Update the state
+        updatedMembers.splice(index, 1);
+        setSelectedMembers(updatedMembers);
     };
 
     return (
         <div className="chat-container">
-              <div className="contacts-sidebar">
-        <div className="header-container">
-            <h2>Groups</h2>
-            <button onClick={() => setShowGroupModal(true)} className="create-group-btn">+ Create Group</button>
-        </div>
-        
-        {groups.map(group => (
-            <div key={group._id} onClick={() => handleGroupSelect(group._id)}>
-                <h3>
-                    <span className="profile-indicator" style={{ backgroundColor: '#4caf50' }}></span>
-                    {group.group_name}
-                </h3>
+            <div className="contacts-sidebar">
+                <div className="header-container">
+                    <h2>Groups</h2>
+                    <button onClick={() => setShowGroupModal(true)} className="create-group-btn">+ Create Group</button>
+                </div>
+                {groups.map(group => (
+                    <div key={group._id} onClick={() => handleGroupSelect(group._id)}>
+                        <h3>
+                            <span className="profile-indicator" style={{ backgroundColor: '#4caf50' }}></span>
+                            {group.group_name}
+                        </h3>
+                    </div>
+                ))}
             </div>
-        ))}
-    </div>
 
             <div className="chat-window">
                 {selectedGroup && (
                     <>
-                        <div className="messages">
-                            {messages.map((msg, index) => (
-                                <div key={index}>
-                                    <strong>{msg.sender}</strong>: {msg.message} <em>{new Date(msg.timestamp).toLocaleString()}</em>
-                                </div>
-                            ))}
-                        </div>
+                       <div className="messages">
+    {messages.map((msg, index) => (
+        <div
+            key={index}
+            className={`message ${msg.sender === email ? 'from-user' : 'from-other'}`}
+        >
+            <strong>{msg.sender === email ? 'You' : msg.sender}</strong>
+            <span>{msg.message}</span>
+            <em>{new Date(msg.timestamp).toLocaleString()}</em>
+        </div>
+    ))}
+</div>
+
                         <div className="message-input">
                             <input
                                 type="text"
@@ -203,53 +206,53 @@ const GroupChat: React.FC = () => {
             </div>
 
             {showGroupModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
-            <h2>Create Group</h2>
-            <input
-              type="text"
-              className="group-name-input"
-              placeholder="Group Name"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-            />
-            <h3>Select Members</h3>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectAll}
-                onChange={handleSelectAll}
-              />
-              Select All
-            </label>
-            <ul className="members-list">
-              {records.map((record) => (
-                <li key={record.email}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={selectedMembers.includes(record.email)}
-                      onChange={() => {
-                        const isSelected = selectedMembers.includes(record.email);
-                        if (isSelected) {
-                          setSelectedMembers(selectedMembers.filter((email) => email !== record.email));
-                        } else {
-                          setSelectedMembers([...selectedMembers, record.email]);
-                        }
-                      }}
-                    />
-                    {record.name} ({record.email})
-                  </label>
-                </li>
-              ))}
-            </ul>
-            <button className="create-group-button" onClick={handleCreateGroup}>
-              Create Group
-            </button>
-          </div>
-        </div>
-      )}
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
+                        <h2>Create Group</h2>
+                        <input
+                            type="text"
+                            className="group-name-input"
+                            placeholder="Group Name"
+                            value={groupName}
+                            onChange={(e) => setGroupName(e.target.value)}
+                        />
+                        <h3>Select Members</h3>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={selectAll}
+                                onChange={handleSelectAll}
+                            />
+                            Select All
+                        </label>
+                        <ul className="members-list">
+                            {records.map((record) => (
+                                <li key={record.email}>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedMembers.includes(record.email)}
+                                            onChange={() => {
+                                                const isSelected = selectedMembers.includes(record.email);
+                                                if (isSelected) {
+                                                    setSelectedMembers(selectedMembers.filter((email) => email !== record.email));
+                                                } else {
+                                                    setSelectedMembers([...selectedMembers, record.email]);
+                                                }
+                                            }}
+                                        />
+                                        {record.name} ({record.email})
+                                    </label>
+                                </li>
+                            ))}
+                        </ul>
+                        <button className="create-group-button" onClick={handleCreateGroup}>
+                            Create Group
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
