@@ -203,18 +203,26 @@ const GroupChat: React.FC = () => {
                     <button onClick={() => setShowGroupModal(true)} className="create-group-btn">+ Create Group</button>
                 </div>
                 {groups.map(group => (
-                    <div key={group._id} onClick={() => handleGroupSelect(group._id)}>
-                        <h3>
-                            <span className="profile-indicator" style={{ backgroundColor: '#4caf50' }}></span>
-                            {group.group_name}
-                        </h3>
-                    </div>
-                ))}
+    <div
+        key={group._id}
+        onClick={() => handleGroupSelect(group._id)}
+        className={`group-item ${selectedGroup === group._id ? 'active-group' : ''}`}
+    >
+        <h3>
+            <span className="profile-indicator" style={{ backgroundColor: '#4caf50' }}></span>
+            {group.group_name}
+        </h3>
+    </div>
+))}
+
             </div>
 
             <div className="chat-window">
                 {selectedGroup && (
                     <>
+                    <h2 className="group-name-title">
+        {groups.find(group => group._id === selectedGroup)?.group_name}
+      </h2>
                         <div className="messages">
     {messages.map((msg, index) => (
         <div key={index} className={`message ${msg.sender === email ? 'from-user' : 'from-other'}`}>
