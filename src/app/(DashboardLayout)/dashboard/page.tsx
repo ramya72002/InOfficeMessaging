@@ -1,5 +1,5 @@
 // export default PopularProducts;
-// import { withAuth } from '../../../utils/theme/auth'
+import { withAuth } from '../../../utils/theme/auth'
 import React from 'react'
 
 const page = () => {
@@ -8,4 +8,4 @@ const page = () => {
   )
 }
 
-export default page
+export default withAuth(page);
