@@ -23,6 +23,10 @@ const generateColor = (email: string) => {
 
 const Chat = () => {
   const [records, setRecords] = useState<Record[]>([]);
+  const [filteredRecords, setFilteredRecords] = useState<Record[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectAll, setSelectAll] = useState<boolean>(false);
   const [selectedContact, setSelectedContact] = useState<Record | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
@@ -30,7 +34,6 @@ const Chat = () => {
   const [error, setError] = useState<string | null>(null);
   const [showGroupModal, setShowGroupModal] = useState<boolean>(false);
   const [groupName, setGroupName] = useState<string>('');
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
   
   // Reference for scrolling to the bottom of the chat body
@@ -47,6 +50,7 @@ const Chat = () => {
           const companyName = response.data.company_name;
           const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${companyName}`);
           setRecords(companyResponse.data);
+          setFilteredRecords(companyResponse.data); // Set initial filtered records
         } else {
           setError("No records found for this user.");
         }
@@ -99,7 +103,22 @@ const Chat = () => {
       }
     }
   };
-
+  useEffect(() => {
+    const filtered = records.filter(record => 
+        record.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        record.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredRecords(filtered);
+}, [searchQuery, records]);
+const handleSelectAll = () => {
+  if (selectAll) {
+      setSelectedMembers([]);
+  } else {
+      const allEmails = filteredRecords.map((record) => record.email);
+      setSelectedMembers(allEmails);
+  }
+  setSelectAll(!selectAll);
+};
   // Handle keydown event for sending messages
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -131,26 +150,21 @@ const Chat = () => {
   }, [messages]);
   const handleCreateGroup = async () => {
     const userEmail = localStorage.getItem('email');
-
-    try {
-      const groupData = {
+    const groupData = {
         group_name: groupName,
         createdBy: userEmail,
         members: selectedMembers,
-      };
-      const response = await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
-      if (response.status === 200) {
+    };
+    try {
+        await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
         setShowGroupModal(false);
         setGroupName('');
         setSelectedMembers([]);
         alert('Group created successfully!');
-      } else {
-        setError('Failed to create group. Please try again.');
-      }
     } catch (err) {
-      setError('Error creating group. Please check the console for details.');
+        console.error("Error creating group:", err);
     }
-  };
+};
 
   const handleToggleGroupModal = () => {
     setShowGroupModal(!showGroupModal);
@@ -239,37 +253,61 @@ const Chat = () => {
       </div>
 
       {showGroupModal && (
-        <div className="modal">
-          <div className="modal-content">
+    <div className="modal">
+        <div className="modal-content">
             <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
-            <h2>Create New Group</h2>
-            <input 
-              type="text" 
-              value={groupName} 
-              onChange={(e) => setGroupName(e.target.value)} 
-              placeholder="Group Name"
+            <h2 className="modal-title">Create Group</h2>
+            <input
+                type="text"
+                className="group-name-input"
+                placeholder="Group Name"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
             />
-            <h3>Select Members:</h3>
-            {records.map((record) => (
-              <div key={record.email}>
-                <input 
-                  type="checkbox" 
-                  checked={selectedMembers.includes(record.email)} 
-                  onChange={() => {
-                    setSelectedMembers((prev) =>
-                      prev.includes(record.email)
-                        ? prev.filter(email => email !== record.email)
-                        : [...prev, record.email]
-                    );
-                  }}
-                />
-                {record.name}
-              </div>
-            ))}
-            <button onClick={handleCreateGroup}>Create Group</button>
-          </div>
+            <h3 className="members-title">Select Members</h3>
+            <input
+                type="text"
+                className="member-search-input"
+                placeholder="Search members..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="select-all-container">
+                <label className="select-all-label">
+                    <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAll}
+                    />
+                    Select All
+                </label>
+            </div>
+            <ul className="members-list">
+                {filteredRecords.map((record) => (
+                    <li key={record.email} className="member-item">
+                        <label className="member-label">
+                            <input
+                                type="checkbox"
+                                checked={selectedMembers.includes(record.email)}
+                                onChange={() => {
+                                    const isSelected = selectedMembers.includes(record.email);
+                                    setSelectedMembers(isSelected 
+                                        ? selectedMembers.filter((email) => email !== record.email)
+                                        : [...selectedMembers, record.email]);
+                                }}
+                            />
+                            {record.name} ({record.email})
+                        </label>
+                    </li>
+                ))}
+            </ul>
+            <button className="create-group-button" onClick={handleCreateGroup}>
+                Create Group
+            </button>
         </div>
-      )}
+    </div>
+)}
+
     </div>
   );
 };
