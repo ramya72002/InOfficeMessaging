@@ -13,14 +13,15 @@ const SendSMS: React.FC<SendSMSProps> = ({ selectedRecords, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [showPopup, setShowPopup] = useState(false); // State for showing popup
+  const [showPopup, setShowPopup] = useState(false);
+
+  const BATCH_SIZE = 5; // Set batch size to control number of SMS per request
 
   const handleSendSMS = async () => {
     setLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
 
-    // Group records by provider
     const providerGroups: { [key: string]: string[] } = {};
     selectedRecords.forEach(record => {
       if (!providerGroups[record.provider]) {
@@ -30,39 +31,55 @@ const SendSMS: React.FC<SendSMSProps> = ({ selectedRecords, onBack }) => {
     });
 
     try {
-      // Send SMS for each provider group
       for (const provider in providerGroups) {
-        const response = await fetch('https://in-office-messaging-backend.vercel.app/send_sms', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            numbers: providerGroups[provider],
-            message: message,
-            provider: provider,
-          }),
-        });
-        console.log(providerGroups[provider],message,provider)
+        const numbers = providerGroups[provider];
 
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to send SMS');
+        // Break numbers into batches
+        for (let i = 0; i < numbers.length; i += BATCH_SIZE) {
+          const batch = numbers.slice(i, i + BATCH_SIZE);
+
+          // Retry logic for each batch
+          let attempts = 0;
+          const maxAttempts = 3;
+          while (attempts < maxAttempts) {
+            try {
+              const response = await fetch('https://in-office-messaging-backend.vercel.app/send_sms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  numbers: batch,
+                  message: message,
+                  provider: provider,
+                }),
+              });
+
+              if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to send SMS');
+              }
+
+              break; // Exit retry loop on success
+            } catch (error) {
+              attempts += 1;
+              if (attempts === maxAttempts) {
+                throw new Error(`Failed to send SMS to batch: ${batch.join(', ')} after ${maxAttempts} attempts`);
+              }
+            }
+          }
         }
       }
-
       setSuccessMessage('SMS sent successfully to all providers!');
     } catch (error: any) {
       setErrorMessage(`Error: ${error.message}`);
     } finally {
       setLoading(false);
-      setShowPopup(true); // Show popup after sending SMS
+      setShowPopup(true);
     }
   };
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    router.push('/ui/sendsms'); // Redirect to /sendmessage
+    router.push('/ui/sendsms');
   };
 
   return (
@@ -85,15 +102,12 @@ const SendSMS: React.FC<SendSMSProps> = ({ selectedRecords, onBack }) => {
 
       <button onClick={onBack} className="backButton">Back</button>
 
-      {/* Popup Modal */}
       {showPopup && (
         <div className="popup">
           <div className="popupContent">
             {successMessage && <p className="successMessage">{successMessage}</p>}
             {errorMessage && <p className="errorMessage">{errorMessage}</p>}
-            <button onClick={handleClosePopup} className="popupButton">
-              OK
-            </button>
+            <button onClick={handleClosePopup} className="popupButton">OK</button>
           </div>
         </div>
       )}
