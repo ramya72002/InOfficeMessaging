@@ -112,59 +112,46 @@
       flex: 1;
       padding: 20px;
       overflow-y: auto;
-      background-color: #f9f9f9; // Light background for chat body
-
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+  
       .message {
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
-
-        &.message-sent {
-          align-items: flex-end;
-
-          .message-content {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 70%; // Limit message width
-            word-wrap: break-word; // Wrap long messages
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Add shadow
+          margin-bottom: 10px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+  
+          &.message-sent {
+              align-items: flex-end;
+  
+              .message-content {
+                  background-color: #12da37;
+                  color: white;
+                  padding: 10px;
+                  border-radius: 5px;
+                  max-width: 70%; // Limit message width
+                  word-wrap: break-word; // Wrap long messages
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Add shadow
+                  margin-left: auto; // Align to the right
+              }
           }
-        }
-
-        &.message-received {
-          .message-content {
-            background-color: #e9e9eb;
-            color: black;
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 70%; // Limit message width
-            word-wrap: break-word; // Wrap long messages
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Add shadow
+  
+          &.message-received {
+              .message-content {
+                  background-color: #e9e9eb;
+                  color: black;
+                  padding: 10px;
+                  border-radius: 5px;
+                  max-width: 70%; // Limit message width
+                  word-wrap: break-word; // Wrap long messages
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // Add shadow
+              }
           }
-        }
-
-        .message-sender {
-          font-weight: bold;
-          margin-bottom: 5px;
-        }
-
-        .message-time {
-          font-size: 12px;
-          color: #888;
-          margin-top: 5px;
-        }
       }
-
-      .no-messages {
-        text-align: center;
-        font-size: 18px;
-        color: #888;
-      }
-    }
+  }
+  
 
     .send-message-container {
       display: flex;
