@@ -1,5 +1,5 @@
 // utils/auth.tsx
-
+'use client'
 import { useRouter } from 'next/navigation';
 import { useEffect, ComponentType } from 'react';
 
