@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useRef} from 'react';
 import axios from 'axios';
 import './groupchat.scss';
 
@@ -26,6 +26,7 @@ interface Message {
 }
 
 const GroupChat: React.FC = () => {
+  const messagesEndRef = useRef<null | HTMLDivElement>(null);
     const [records, setRecords] = useState<Record[]>([]);
     const [selectedContact, setSelectedContact] = useState<Record | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -73,6 +74,12 @@ const GroupChat: React.FC = () => {
 
         fetchRecords();
     }, []);
+    useEffect(() => {
+      if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+  }, [messages]);
+  
 
     const handleSelectAll = () => {
         if (selectAll) {
@@ -208,17 +215,17 @@ const GroupChat: React.FC = () => {
                 {selectedGroup && (
                     <>
                         <div className="messages">
-                            {messages.map((msg, index) => (
-                                <div
-                                    key={index}
-                                    className={`message ${msg.sender === email ? 'from-user' : 'from-other'}`}
-                                >
-                                    <strong>{msg.sender === email ? 'You' : msg.sender}</strong>
-                                    <span>{msg.message}</span>
-                                    <em>{new Date(msg.timestamp).toLocaleString()}</em>
-                                </div>
-                            ))}
-                        </div>
+    {messages.map((msg, index) => (
+        <div key={index} className={`message ${msg.sender === email ? 'from-user' : 'from-other'}`}>
+            <strong>{msg.sender}</strong>
+            <p>{msg.message}</p>
+            <em>{new Date(msg.timestamp).toLocaleTimeString()}</em>
+        </div>
+    ))}
+    {/* Reference div for scrolling to the bottom */}
+    <div ref={messagesEndRef} />
+</div>
+
 
                         <div className="message-input">
                             <input
