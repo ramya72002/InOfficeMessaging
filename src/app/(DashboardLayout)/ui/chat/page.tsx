@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './chat.scss';
 import { withAuth } from '../../../../utils/theme/auth'
+import ShowGroupModal from '../groupchat/ShowGroupModal';
 export interface Record {
   name: string;
   email: string;
@@ -252,61 +253,20 @@ const handleSelectAll = () => {
         )}
       </div>
 
-      {showGroupModal && (
-    <div className="modal">
-        <div className="modal-content">
-            <span className="close-button" onClick={handleToggleGroupModal}>&times;</span>
-            <h2 className="modal-title">Create Group</h2>
-            <input
-                type="text"
-                className="group-name-input"
-                placeholder="Group Name"
-                value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
+      <ShowGroupModal 
+                show={showGroupModal}
+                onClose={handleToggleGroupModal}
+                groupName={groupName}
+                setGroupName={setGroupName}
+                selectedMembers={selectedMembers}
+                setSelectedMembers={setSelectedMembers}
+                filteredRecords={filteredRecords}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                handleSelectAll={handleSelectAll}
+                selectAll={selectAll}
+                handleCreateGroup={handleCreateGroup}
             />
-            <h3 className="members-title">Select Members</h3>
-            <input
-                type="text"
-                className="member-search-input"
-                placeholder="Search members..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <div className="select-all-container">
-                <label className="select-all-label">
-                    <input
-                        type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAll}
-                    />
-                    Select All
-                </label>
-            </div>
-            <ul className="members-list">
-                {filteredRecords.map((record) => (
-                    <li key={record.email} className="member-item">
-                        <label className="member-label">
-                            <input
-                                type="checkbox"
-                                checked={selectedMembers.includes(record.email)}
-                                onChange={() => {
-                                    const isSelected = selectedMembers.includes(record.email);
-                                    setSelectedMembers(isSelected 
-                                        ? selectedMembers.filter((email) => email !== record.email)
-                                        : [...selectedMembers, record.email]);
-                                }}
-                            />
-                            {record.name} ({record.email})
-                        </label>
-                    </li>
-                ))}
-            </ul>
-            <button className="create-group-button" onClick={handleCreateGroup}>
-                Create Group
-            </button>
-        </div>
-    </div>
-)}
 
     </div>
   );
