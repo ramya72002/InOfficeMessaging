@@ -1,16 +1,12 @@
+// src/components/chat/Chat.tsx
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './chat.scss';
 import { withAuth } from '../../../../utils/theme/auth';
 import ShowGroupModal from '../groupchat/ShowGroupModal';
+import ContactsSidebar from './ContactsSidebar'; // Import your new component
 import { Record } from '../../../../utils/interfaces/type';
-
-const generateColor = (email: string) => {
-  const colors = ['#FF5733', '#33FF57', '#3357FF', '#F1C40F', '#8E44AD', '#3498DB'];
-  const hash = email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return colors[hash % colors.length];
-};
 
 const Chat = () => {
   const [records, setRecords] = useState<Record[]>([]);
@@ -143,24 +139,14 @@ const Chat = () => {
 
   return (
     <div className="chat-container">
-      <div className="contacts-sidebar">
-        <div className="contacts-header">
-          Contacts
-          <button className="create-group-button" onClick={handleToggleGroupModal}>+</button>
-        </div>
-        {records.map(record => (
-          <div
-            key={record.email}
-            className={`contact-item ${selectedContact?.email === record.email ? 'contact-selected' : ''}`}
-            onClick={() => setSelectedContact(record)}
-          >
-            <div className="contact-avatar" style={{ backgroundColor: generateColor(record.email) }}>
-              {record.name.charAt(0).toUpperCase()}
-            </div>
-            <div className="contact-name">{record.name}</div>
-          </div>
-        ))}
-      </div>
+      <ContactsSidebar
+        records={filteredRecords}
+        selectedContact={selectedContact}
+        setSelectedContact={setSelectedContact}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleToggleGroupModal={handleToggleGroupModal}
+      />
 
       <div className="chat-window">
         {selectedContact ? (
@@ -208,20 +194,22 @@ const Chat = () => {
         )}
       </div>
 
-      <ShowGroupModal 
+      {showGroupModal && (
+        <ShowGroupModal
         show={showGroupModal}
-        onClose={handleToggleGroupModal}
-        groupName={groupName}
-        setGroupName={setGroupName}
-        selectedMembers={selectedMembers}
-        setSelectedMembers={setSelectedMembers}
+          onClose={handleToggleGroupModal}
+          groupName={groupName}
+          setGroupName={setGroupName}
+          selectedMembers={selectedMembers}
+          setSelectedMembers={setSelectedMembers}
         filteredRecords={filteredRecords}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         handleSelectAll={handleSelectAll}
         selectAll={selectAll}
         handleCreateGroup={handleCreateGroup}
-      />
+        />
+      )}
     </div>
   );
 };
