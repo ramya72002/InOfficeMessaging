@@ -1,12 +1,13 @@
-// src/components/chat/Chat.tsx
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './chat.scss';
 import { withAuth } from '../../../../utils/theme/auth';
 import ShowGroupModal from '../groupchat/ShowGroupModal';
-import ContactsSidebar from './ContactsSidebar'; // Import your new component
+import ContactsSidebar from './ContactsSidebar';
 import { Record } from '../../../../utils/interfaces/type';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Chat = () => {
   const [records, setRecords] = useState<Record[]>([]);
@@ -21,17 +22,19 @@ const Chat = () => {
   const [error, setError] = useState<string | null>(null);
   const [showGroupModal, setShowGroupModal] = useState<boolean>(false);
   const [groupName, setGroupName] = useState<string>('');
-  
+  const [notificationShown, setNotificationShown] = useState<boolean>(false); // Track notification state
+
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
   const userEmail = localStorage.getItem('email');
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Fetch contacts
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${userEmail}`);
+        const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${userEmail}`);
         if (response.data) {
-          const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${response.data.company_name}`);
+          const companyResponse = await axios.get(`http://127.0.0.1:80/get_forms_company_name?company_name=${response.data.company_name}`);
           setRecords(companyResponse.data);
           setFilteredRecords(companyResponse.data);
         } else {
@@ -50,7 +53,7 @@ const Chat = () => {
   // Fetch messages for the selected contact
   const fetchMessages = async (contactEmail: string) => {
     try {
-      const response = await axios.get(`https://in-office-messaging-backend.vercel.app/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
+      const response = await axios.get(`http://127.0.0.1:80/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
       setMessages(response.data.conversation || []);
     } catch {
       setError("Error fetching messages.");
@@ -60,7 +63,6 @@ const Chat = () => {
   const getCurrentTimestamp = () => {
     return (new Date()).toLocaleDateString('en-CA') + ' ' + (new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
-  
 
   const handleSendMessage = async () => {
     if (newMessage.trim() && selectedContact) {
@@ -69,10 +71,11 @@ const Chat = () => {
         receiver: selectedContact.email,
         message: newMessage,
         timestamp: getCurrentTimestamp(),
+        isRead: false // Add isRead property
       };
 
       try {
-        const response = await axios.post('https://in-office-messaging-backend.vercel.app/send_message', newMessageObj);
+        const response = await axios.post('http://127.0.0.1:80/send_message', newMessageObj);
         if (response.status === 200) {
           setMessages(prevMessages => [...prevMessages, newMessageObj]);
           setNewMessage('');
@@ -119,10 +122,38 @@ const Chat = () => {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1].sender !== userEmail) {
+      const lastMessage = messages[messages.length - 1];
+
+      // Check if the last message is unread and if notification hasn't been shown
+      if (!lastMessage.isRead && !notificationShown) {
+        // Play sound and show toast notification
+        if (audioRef.current) {
+          audioRef.current.play().catch((error) => console.error('Error playing sound:', error));
+        }
+        toast.info('New message received!', {
+          position: 'bottom-right',
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        // Set notification shown to true
+        setNotificationShown(true);
+      }
+    } else {
+      // Reset notification shown if the last message is from the user or no messages
+      setNotificationShown(false);
+    }
+  }, [messages, notificationShown]);
+
   const handleCreateGroup = async () => {
     const groupData = { group_name: groupName, createdBy: userEmail, members: selectedMembers };
     try {
-      await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
+      await axios.post('http://127.0.0.1:80/create_group', groupData);
       setShowGroupModal(false);
       setGroupName('');
       setSelectedMembers([]);
@@ -196,20 +227,23 @@ const Chat = () => {
 
       {showGroupModal && (
         <ShowGroupModal
-        show={showGroupModal}
+          show={showGroupModal}
           onClose={handleToggleGroupModal}
           groupName={groupName}
           setGroupName={setGroupName}
           selectedMembers={selectedMembers}
           setSelectedMembers={setSelectedMembers}
-        filteredRecords={filteredRecords}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        handleSelectAll={handleSelectAll}
-        selectAll={selectAll}
-        handleCreateGroup={handleCreateGroup}
+          filteredRecords={filteredRecords}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          handleSelectAll={handleSelectAll}
+          selectAll={selectAll}
+          handleCreateGroup={handleCreateGroup}
         />
       )}
+      
+      <audio ref={audioRef} src="/notification.mp3" preload="auto"></audio>
+      <ToastContainer />
     </div>
   );
 };
