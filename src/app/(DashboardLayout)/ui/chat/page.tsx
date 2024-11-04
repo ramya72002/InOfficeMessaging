@@ -32,9 +32,9 @@ const Chat = () => {
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${userEmail}`);
+        const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${userEmail}`);
         if (response.data) {
-          const companyResponse = await axios.get(`http://127.0.0.1:80/get_forms_company_name?company_name=${response.data.company_name}`);
+          const companyResponse = await axios.get(`https://in-office-messaging-backend.vercel.app/get_forms_company_name?company_name=${response.data.company_name}`);
           setRecords(companyResponse.data);
           setFilteredRecords(companyResponse.data);
         } else {
@@ -53,12 +53,28 @@ const Chat = () => {
   // Fetch messages for the selected contact
   const fetchMessages = async (contactEmail: string) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:80/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
-      setMessages(response.data.conversation || []);
-    } catch {
-      setError("Error fetching messages.");
+        // Fetch the conversation
+        const response = await axios.get(`https://in-office-messaging-backend.vercel.app/get_conversation?sender=${userEmail}&receiver=${contactEmail}`);
+        const conversation = response.data.conversation || [];
+        
+        // Update the state with the fetched messages
+        setMessages(conversation);
+        console.log("fghjkl",userEmail,localStorage.getItem('email'))
+        // Check if the current user is the receiver
+        if (userEmail === localStorage.getItem('email')) {
+          
+            // If the current user is the receiver, mark the latest message as read
+            await axios.post('https://in-office-messaging-backend.vercel.app/mark_as_read', {
+                currentUser: userEmail,
+                sender: contactEmail,
+                receiver: userEmail
+            });
+        }
+    } catch (error) {
+        setError("Error fetching messages.");
     }
-  };
+};
+
 
   const getCurrentTimestamp = () => {
     return (new Date()).toLocaleDateString('en-CA') + ' ' + (new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -75,7 +91,7 @@ const Chat = () => {
       };
 
       try {
-        const response = await axios.post('http://127.0.0.1:80/send_message', newMessageObj);
+        const response = await axios.post('https://in-office-messaging-backend.vercel.app/send_message', newMessageObj);
         if (response.status === 200) {
           setMessages(prevMessages => [...prevMessages, newMessageObj]);
           setNewMessage('');
@@ -153,7 +169,7 @@ const Chat = () => {
   const handleCreateGroup = async () => {
     const groupData = { group_name: groupName, createdBy: userEmail, members: selectedMembers };
     try {
-      await axios.post('http://127.0.0.1:80/create_group', groupData);
+      await axios.post('https://in-office-messaging-backend.vercel.app/create_group', groupData);
       setShowGroupModal(false);
       setGroupName('');
       setSelectedMembers([]);
