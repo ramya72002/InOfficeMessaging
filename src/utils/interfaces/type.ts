@@ -7,6 +7,7 @@ export interface Record {
     signup_date: {
         $date: string;
     };
+    unread_count:number| 0
 }
 export interface Group {
     group_name: string;

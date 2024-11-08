@@ -50,6 +50,7 @@ const ContactsSidebar: React.FC<ContactsSidebarProps> = ({
             {record.name.charAt(0).toUpperCase()}
           </div>
           <div className="contact-name">{record.name}</div>
+          {record.unread_count > 0 && <span className="unread-count">({record.unread_count})</span>}
         </div>
       ))}
     </div>
