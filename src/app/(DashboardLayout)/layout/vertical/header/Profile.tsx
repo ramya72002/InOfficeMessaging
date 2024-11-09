@@ -15,7 +15,7 @@ const Profile = () => {
     const fetchUserName = async () => {
       try {
         const email = localStorage.getItem('email'); // Get email from local storage
-        const response = await axios.get(`http://127.0.0.1:80/getrecords?email=${email}`);
+        const response = await axios.get(`https://in-office-messaging-backend.vercel.app/getrecords?email=${email}`);
         const fetchedName = response.data.name;
         setName(fetchedName); // Set the fetched name in the state
       } catch (error) {
