@@ -43,7 +43,7 @@ const SendSMS: React.FC<SendSMSProps> = ({ selectedRecords, onBack }) => {
           const maxAttempts = 3;
           while (attempts < maxAttempts) {
             try {
-              const response = await fetch('https://in-office-messaging-backend.vercel.app/api/send_sms', {
+              const response = await fetch('https://in-office-messaging-backend.vercel.app/send_sms', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
